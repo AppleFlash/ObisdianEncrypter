@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		342FF1D32B7BE5E0008DB4F6 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 342FF1D22B7BE5E0008DB4F6 /* SettingsView.swift */; };
+		342FF1D52B7BE99F008DB4F6 /* NewCheckpassFileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 342FF1D42B7BE99F008DB4F6 /* NewCheckpassFileView.swift */; };
+		342FF1D72B7BF8E3008DB4F6 /* AppStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 342FF1D62B7BF8E3008DB4F6 /* AppStorageService.swift */; };
 		345CB79A2B6D72C100D51688 /* ObsidianEncrypterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345CB7992B6D72C100D51688 /* ObsidianEncrypterApp.swift */; };
 		345CB79E2B6D72C300D51688 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 345CB79D2B6D72C300D51688 /* Assets.xcassets */; };
 		345CB7A12B6D72C300D51688 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 345CB7A02B6D72C300D51688 /* Preview Assets.xcassets */; };
@@ -29,6 +32,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		342FF1D22B7BE5E0008DB4F6 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = ../../../../../../SettingsView.swift; sourceTree = "<group>"; };
+		342FF1D42B7BE99F008DB4F6 /* NewCheckpassFileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCheckpassFileView.swift; sourceTree = "<group>"; };
+		342FF1D62B7BF8E3008DB4F6 /* AppStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppStorageService.swift; path = ../../../../../AppStorageService.swift; sourceTree = "<group>"; };
 		345CB7962B6D72C100D51688 /* ObsidianEncrypter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ObsidianEncrypter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		345CB7992B6D72C100D51688 /* ObsidianEncrypterApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObsidianEncrypterApp.swift; sourceTree = "<group>"; };
 		345CB79D2B6D72C300D51688 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -61,6 +67,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		342FF1D12B7BE5D6008DB4F6 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				342FF1D22B7BE5E0008DB4F6 /* SettingsView.swift */,
+				342FF1D42B7BE99F008DB4F6 /* NewCheckpassFileView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
 		345CB78D2B6D72C100D51688 = {
 			isa = PBXGroup;
 			children = (
@@ -112,6 +127,7 @@
 		345CB7C42B6D74AA00D51688 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				342FF1D12B7BE5D6008DB4F6 /* Settings */,
 				345CB7C62B6D74BF00D51688 /* Main */,
 			);
 			path = Screens;
@@ -122,6 +138,7 @@
 			children = (
 				345CB7CB2B6EB29000D51688 /* ShellExecutor.swift */,
 				345CB7CD2B700A9F00D51688 /* EncryptService.swift */,
+				342FF1D62B7BF8E3008DB4F6 /* AppStorageService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -243,12 +260,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				342FF1D32B7BE5E0008DB4F6 /* SettingsView.swift in Sources */,
 				345CB7C82B6D74D500D51688 /* MainView.swift in Sources */,
 				345CB7CC2B6EB29000D51688 /* ShellExecutor.swift in Sources */,
 				345CB7D32B700C1200D51688 /* Try+ErrorHandler.swift in Sources */,
 				345CB79A2B6D72C100D51688 /* ObsidianEncrypterApp.swift in Sources */,
 				345CB7CA2B6D76D200D51688 /* MainPresenter.swift in Sources */,
+				342FF1D72B7BF8E3008DB4F6 /* AppStorageService.swift in Sources */,
 				345CB7CE2B700A9F00D51688 /* EncryptService.swift in Sources */,
+				342FF1D52B7BE99F008DB4F6 /* NewCheckpassFileView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

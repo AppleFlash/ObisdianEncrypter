@@ -13,6 +13,9 @@ struct ObsidianEncrypterApp: App {
         WindowGroup {
             MainFactory.createMain()
         }
+        Settings {
+            Text("Here is settings")
+        }
     }
 }
 
@@ -22,5 +25,11 @@ enum MainFactory {
         let presenter = MainPresenter(state: state, fileManager: .default)
         let view = MainView(presenter: presenter, state: state)
         return view
+    }
+
+    static func createSettings() -> some View {
+        SettingsView {
+            NewCheckpassFileView(state: NewCheckpassState())
+        }
     }
 }

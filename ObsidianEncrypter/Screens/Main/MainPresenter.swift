@@ -6,6 +6,7 @@
 //
 
 import AppKit
+import Combine
 
 enum Folder {
     case git
@@ -17,21 +18,22 @@ final class MainPresenter {
         static let storageDir = "storage"
         static let gitDir = ".git"
         static let obsidianDir = ".obsidian"
-
-        fileprivate static let gitDirKey = "syncronizer.git.dir"
-        fileprivate static let vaultDirKey = "syncronizer.vault.dir"
     }
 
     private let state: MainState
     private let fileManager: FileManager
+    private let appStorageService: AppStorageService
+
+    private var disposables = Set<AnyCancellable>()
 
     var isSyncAvailable: Bool {
         !state.encryptionPass.isEmpty && !state.gitRepoPath.isEmpty && !state.vaultRepoPath.isEmpty
     }
 
-    init(state: MainState, fileManager: FileManager) {
+    init(state: MainState, fileManager: FileManager, appStorageService: AppStorageService = .make()) {
         self.state = state
         self.fileManager = fileManager
+        self.appStorageService = appStorageService
 
         tryRestorePaths()
     }
@@ -82,12 +84,21 @@ final class MainPresenter {
     }
 
     private func tryRestorePaths() {
-        if let gitRepoPath = UserDefaults.standard.url(forKey: Constants.gitDirKey) {
-            state.gitRepoPath = gitRepoPath.path(percentEncoded: false)
-        }
-        if let vaultRepoPath = UserDefaults.standard.url(forKey: Constants.vaultDirKey) {
-            state.vaultRepoPath = vaultRepoPath.path(percentEncoded: false)
-        }
+        appStorageService
+            .gitRepoPathUpdated()
+            .compactMap { $0 }
+            .sink { [state] in
+                state.gitRepoPath = $0.path(percentEncoded: false)
+            }
+            .store(in: &disposables)
+
+        appStorageService
+            .vaultRepoPathUpdated()
+            .compactMap { $0 }
+            .sink { [state] in
+                state.vaultRepoPath = $0.path(percentEncoded: false)
+            }
+            .store(in: &disposables)
     }
 
     private func checkIfGitRepo(_ url: URL) {
@@ -104,7 +115,7 @@ final class MainPresenter {
 
         let path = url.path(percentEncoded: false)
         state.gitRepoPath = path
-        UserDefaults.standard.set(path, forKey: Constants.gitDirKey)
+        appStorageService.saveGitRepoPath(url)
 
     }
 
@@ -117,7 +128,7 @@ final class MainPresenter {
 
         let path = url.path(percentEncoded: false)
         state.vaultRepoPath = path
-        UserDefaults.standard.set(path, forKey: Constants.vaultDirKey)
+        appStorageService.saveVaultRepoPath(url)
     }
 }
 
