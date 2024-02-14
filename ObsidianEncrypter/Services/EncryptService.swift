@@ -33,13 +33,25 @@ enum EncryptService {
         }
     }
 
-    private static func encrypt(
+    static func encrypt(
         _ file: String,
         password: String,
         baseDir: URL
     ) throws {
         try ShellExecutor.execute(
             "openssl enc -aes-256-cbc -salt -pbkdf2 -in \(file) -out \(file).enc -k \(password)",
+            dirURL: baseDir
+        )
+    }
+
+    static func dencrypt(
+        _ file: String,
+        output: String,
+        password: String,
+        baseDir: URL
+    ) throws {
+        try ShellExecutor.execute(
+            "openssl enc -aes-256-cbc -d -pbkdf2 -in \(file).enc -out \(output) -k \(password)",
             dirURL: baseDir
         )
     }

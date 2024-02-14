@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-final class NewCheckpassState: ObservableObject {
-    @Published var gitRepoPath: String?
-    @Published var checkfileName: String = ""
-    @Published var checkfilePass: String = ""
-}
-
 struct NewCheckpassFileView: View {
-    @ObservedObject var state: NewCheckpassState
+    @ObservedObject private var state: NewCheckpassState
+    private let presenter: NewCheckpassFilePresenter
+
+    init(state: NewCheckpassState, presenter: NewCheckpassFilePresenter) {
+        self.state = state
+        self.presenter = presenter
+    }
 
     var body: some View {
         if state.gitRepoPath != nil {
@@ -39,18 +39,17 @@ struct NewCheckpassFileView: View {
             })
 
             Button {
-                print("tap")
+                presenter.createNewCheckpassFile()
             } label: {
                 Text("Create").frame(width: 100)
             }
+            .disabled(!state.isReadyToCreate)
+            .alert("Saved!", isPresented: $state.needShowSavedAlert) {
+                Button("Ok") {
+                    presenter.invalidateSaveState()
+                }
+            }
+
         }.padding(.all)
     }
 }
-
-#if DEBUG
-struct NewCheckpassFileView_Preview: PreviewProvider {
-    static var previews: some View {
-        NewCheckpassFileView(state: NewCheckpassState())
-    }
-}
-#endif

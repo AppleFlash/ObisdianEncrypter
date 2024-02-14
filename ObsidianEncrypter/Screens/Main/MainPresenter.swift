@@ -35,7 +35,7 @@ final class MainPresenter {
         self.fileManager = fileManager
         self.appStorageService = appStorageService
 
-        tryRestorePaths()
+        subscribePathChanges()
     }
 
     func showFolderPrompt(folder: Folder) {
@@ -83,7 +83,7 @@ final class MainPresenter {
         }
     }
 
-    private func tryRestorePaths() {
+    private func subscribePathChanges() {
         appStorageService
             .gitRepoPathUpdated()
             .compactMap { $0 }

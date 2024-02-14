@@ -11,25 +11,32 @@ import SwiftUI
 struct ObsidianEncrypterApp: App {
     var body: some Scene {
         WindowGroup {
-            MainFactory.createMain()
+            MainFactory.shared.createMain()
         }
         Settings {
-            Text("Here is settings")
+            MainFactory.shared.createSettings()
         }
     }
 }
 
-enum MainFactory {
-    static func createMain() -> some View {
+class MainFactory {
+    static let shared = MainFactory()
+
+    lazy var appStorageService = AppStorageService.make()
+
+    func createMain() -> some View {
         let state = MainState()
-        let presenter = MainPresenter(state: state, fileManager: .default)
+        let presenter = MainPresenter(state: state, fileManager: .default, appStorageService: appStorageService)
         let view = MainView(presenter: presenter, state: state)
         return view
     }
 
-    static func createSettings() -> some View {
-        SettingsView {
-            NewCheckpassFileView(state: NewCheckpassState())
+    func createSettings() -> some View {
+        let state = NewCheckpassState()
+        let presenter = NewCheckpassFilePresenter(appStorageService: appStorageService, state: state)
+
+        return SettingsView {
+            NewCheckpassFileView(state: state, presenter: presenter)
         }
     }
 }
