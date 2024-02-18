@@ -71,12 +71,35 @@ final class MainPresenter {
 
     func synchronize() {
         do {
+            let gitDir = URL(filePath: state.gitRepoPath)
+
+            defer {
+                state.encryptionPass = ""
+            }
+
+            let checkStatus = CheckpassService.checkPassfile(
+                in: gitDir,
+                pass: state.encryptionPass,
+                fileManager: fileManager
+            )
+            if checkStatus == .fileNotExist {
+                state.dirError = .encryptError("You should create passfile first")
+                return
+            }
+            if checkStatus == .notMatch {
+                state.dirError = .encryptError("Incorrect password. Create new file or try to remember")
+                return
+            }
+
             try EncryptService.encryptAll(
-                gitDir: URL(filePath: state.gitRepoPath),
+                gitDir: gitDir,
                 vaultDir: URL(filePath: state.vaultRepoPath),
                 password: state.encryptionPass,
                 fileManager: fileManager
             )
+            try ShellExecutor.execute("git add .", dirURL: gitDir)
+            try ShellExecutor.execute(#"git commit -m "Encrypt all""#, dirURL: gitDir)
+            try ShellExecutor.execute("git push", dirURL: gitDir)
             state.needShowSyncedAlert = true
         } catch {
             state.dirError = .encryptError(error.localizedDescription)

@@ -49,24 +49,14 @@ final class NewCheckpassFilePresenter {
         }
 
         do {
-            try deleteExistingCheckpassFile()
-
             let gitPathUrl = URL(filePath: gitRepoPath)
-            let newFileName = state.checkfileName + CheckpassFileConstants.checkpassSuffix
-            let newFilePath = gitPathUrl
-                .appendingPathComponent(newFileName)
-            let stringPath = newFilePath.path(percentEncoded: false)
+            try CheckpassService.createPassfile(
+                in: gitPathUrl,
+                name: state.checkfileName,
+                pass: state.checkfilePass,
+                fileManager: fileManager
+            )
 
-            fileManager.createFile(
-                atPath: newFilePath.path(percentEncoded: false),
-                contents: CheckpassFileConstants.checkpassContent.data(using: .utf8)!
-            )
-            try EncryptService.encrypt(
-                newFileName,
-                password: state.checkfilePass,
-                baseDir: gitPathUrl
-            )
-            let status = CheckpassService.checkPass(state.checkfilePass, gitRepoPath: gitRepoPath)
             state.checkfileName = ""
             state.checkfilePass = ""
             state.needShowSavedAlert = true
@@ -77,21 +67,6 @@ final class NewCheckpassFilePresenter {
 
     func invalidateSaveState() {
         state.needShowSavedAlert = false
-    }
-
-    private func deleteExistingCheckpassFile() throws {
-        guard let gitRepoPath = state.gitRepoPath else {
-            fatalError("Git path not set")
-        }
-
-        let contents = try fileManager.contentsOfDirectory(atPath: gitRepoPath)
-        let existingCheckpass = contents.first { $0.hasSuffix(CheckpassFileConstants.checkpassSuffix) }
-        guard let existingCheckpass else {
-            return
-        }
-
-        let deletePath = URL(filePath: gitRepoPath).appendingPathComponent(existingCheckpass)
-        try fileManager.removeItem(atPath: deletePath.path())
     }
 }
 

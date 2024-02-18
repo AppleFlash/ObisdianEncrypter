@@ -11,6 +11,7 @@ enum EncryptService {
     enum Constants {
         static let storageDirName = "storage"
         static let outputZipName = "storage.zip"
+        static let encSuffix = ".enc"
     }
 
     static func encryptAll(
@@ -29,36 +30,33 @@ enum EncryptService {
             try fileManager.removeItem(at: storageDir)
             try encrypt(Constants.outputZipName, password: password, baseDir: gitDir)
             try fileManager.removeItem(at: gitDir.appendingPathComponent(Constants.outputZipName))
-            try pushChanges(baseDir: gitDir)
         }
     }
 
+    @discardableResult
     static func encrypt(
         _ file: String,
         password: String,
         baseDir: URL
-    ) throws {
+    ) throws -> String {
+        let fileName = file + Constants.encSuffix
         try ShellExecutor.execute(
-            "openssl enc -aes-256-cbc -salt -pbkdf2 -in \(file) -out \(file).enc -k \(password)",
+            "openssl enc -aes-256-cbc -salt -pbkdf2 -in \(file) -out \(fileName) -k \(password)",
             dirURL: baseDir
         )
+
+        return fileName
     }
 
-    static func dencrypt(
+    static func decrypt(
         _ file: String,
         output: String,
         password: String,
         baseDir: URL
     ) throws {
         try ShellExecutor.execute(
-            "openssl enc -aes-256-cbc -d -pbkdf2 -in \(file).enc -out \(output) -k \(password)",
+            "openssl enc -aes-256-cbc -d -pbkdf2 -in \(file) -out \(output) -k \(password)",
             dirURL: baseDir
         )
-    }
-
-    private static func pushChanges(baseDir: URL) throws {
-        try ShellExecutor.execute("git add .", dirURL: baseDir)
-        try ShellExecutor.execute(#"git commit -m "Encrypt all""#, dirURL: baseDir)
-        try ShellExecutor.execute("git push", dirURL: baseDir)
     }
 }
