@@ -12,12 +12,16 @@
 		342FF1D72B7BF8E3008DB4F6 /* AppStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 342FF1D62B7BF8E3008DB4F6 /* AppStorageService.swift */; };
 		342FF1DA2B7D3C6E008DB4F6 /* NewCheckpassFilePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 342FF1D92B7D3C6E008DB4F6 /* NewCheckpassFilePresenter.swift */; };
 		342FF1DC2B7D4F1F008DB4F6 /* CheckpassService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 342FF1DB2B7D4F1F008DB4F6 /* CheckpassService.swift */; };
+		343946E02B82A33700932581 /* DecryptPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343946DF2B82A33700932581 /* DecryptPresenter.swift */; };
+		343946E22B82A34300932581 /* MainViewPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343946E12B82A34300932581 /* MainViewPresenter.swift */; };
+		343946E42B82A6A500932581 /* MainState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343946E32B82A6A500932581 /* MainState.swift */; };
+		343946E62B82A6C700932581 /* FileManager+HiddenDirs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343946E52B82A6C700932581 /* FileManager+HiddenDirs.swift */; };
 		345CB79A2B6D72C100D51688 /* ObsidianEncrypterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345CB7992B6D72C100D51688 /* ObsidianEncrypterApp.swift */; };
 		345CB79E2B6D72C300D51688 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 345CB79D2B6D72C300D51688 /* Assets.xcassets */; };
 		345CB7A12B6D72C300D51688 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 345CB7A02B6D72C300D51688 /* Preview Assets.xcassets */; };
 		345CB7AC2B6D72C300D51688 /* ObsidianEncrypterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345CB7AB2B6D72C300D51688 /* ObsidianEncrypterTests.swift */; };
 		345CB7C82B6D74D500D51688 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345CB7C72B6D74D500D51688 /* MainView.swift */; };
-		345CB7CA2B6D76D200D51688 /* MainPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345CB7C92B6D76D200D51688 /* MainPresenter.swift */; };
+		345CB7CA2B6D76D200D51688 /* EncryptPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345CB7C92B6D76D200D51688 /* EncryptPresenter.swift */; };
 		345CB7CC2B6EB29000D51688 /* ShellExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345CB7CB2B6EB29000D51688 /* ShellExecutor.swift */; };
 		345CB7CE2B700A9F00D51688 /* EncryptService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345CB7CD2B700A9F00D51688 /* EncryptService.swift */; };
 		345CB7D32B700C1200D51688 /* Try+ErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345CB7D22B700C1200D51688 /* Try+ErrorHandler.swift */; };
@@ -39,6 +43,10 @@
 		342FF1D62B7BF8E3008DB4F6 /* AppStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppStorageService.swift; path = ../../../../../AppStorageService.swift; sourceTree = "<group>"; };
 		342FF1D92B7D3C6E008DB4F6 /* NewCheckpassFilePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCheckpassFilePresenter.swift; sourceTree = "<group>"; };
 		342FF1DB2B7D4F1F008DB4F6 /* CheckpassService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckpassService.swift; sourceTree = "<group>"; };
+		343946DF2B82A33700932581 /* DecryptPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecryptPresenter.swift; sourceTree = "<group>"; };
+		343946E12B82A34300932581 /* MainViewPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewPresenter.swift; sourceTree = "<group>"; };
+		343946E32B82A6A500932581 /* MainState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainState.swift; sourceTree = "<group>"; };
+		343946E52B82A6C700932581 /* FileManager+HiddenDirs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager+HiddenDirs.swift"; sourceTree = "<group>"; };
 		345CB7962B6D72C100D51688 /* ObsidianEncrypter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ObsidianEncrypter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		345CB7992B6D72C100D51688 /* ObsidianEncrypterApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObsidianEncrypterApp.swift; sourceTree = "<group>"; };
 		345CB79D2B6D72C300D51688 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -47,7 +55,7 @@
 		345CB7A72B6D72C300D51688 /* ObsidianEncrypterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ObsidianEncrypterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		345CB7AB2B6D72C300D51688 /* ObsidianEncrypterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObsidianEncrypterTests.swift; sourceTree = "<group>"; };
 		345CB7C72B6D74D500D51688 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
-		345CB7C92B6D76D200D51688 /* MainPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPresenter.swift; sourceTree = "<group>"; };
+		345CB7C92B6D76D200D51688 /* EncryptPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptPresenter.swift; sourceTree = "<group>"; };
 		345CB7CB2B6EB29000D51688 /* ShellExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellExecutor.swift; sourceTree = "<group>"; };
 		345CB7CD2B700A9F00D51688 /* EncryptService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptService.swift; sourceTree = "<group>"; };
 		345CB7D22B700C1200D51688 /* Try+ErrorHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Try+ErrorHandler.swift"; sourceTree = "<group>"; };
@@ -161,7 +169,10 @@
 			isa = PBXGroup;
 			children = (
 				345CB7C72B6D74D500D51688 /* MainView.swift */,
-				345CB7C92B6D76D200D51688 /* MainPresenter.swift */,
+				345CB7C92B6D76D200D51688 /* EncryptPresenter.swift */,
+				343946DF2B82A33700932581 /* DecryptPresenter.swift */,
+				343946E12B82A34300932581 /* MainViewPresenter.swift */,
+				343946E32B82A6A500932581 /* MainState.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -170,6 +181,7 @@
 			isa = PBXGroup;
 			children = (
 				345CB7D22B700C1200D51688 /* Try+ErrorHandler.swift */,
+				343946E52B82A6C700932581 /* FileManager+HiddenDirs.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -274,14 +286,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				343946E42B82A6A500932581 /* MainState.swift in Sources */,
 				342FF1DC2B7D4F1F008DB4F6 /* CheckpassService.swift in Sources */,
 				342FF1D32B7BE5E0008DB4F6 /* SettingsView.swift in Sources */,
+				343946E62B82A6C700932581 /* FileManager+HiddenDirs.swift in Sources */,
 				345CB7C82B6D74D500D51688 /* MainView.swift in Sources */,
 				345CB7CC2B6EB29000D51688 /* ShellExecutor.swift in Sources */,
+				343946E02B82A33700932581 /* DecryptPresenter.swift in Sources */,
 				345CB7D32B700C1200D51688 /* Try+ErrorHandler.swift in Sources */,
 				345CB79A2B6D72C100D51688 /* ObsidianEncrypterApp.swift in Sources */,
 				342FF1DA2B7D3C6E008DB4F6 /* NewCheckpassFilePresenter.swift in Sources */,
-				345CB7CA2B6D76D200D51688 /* MainPresenter.swift in Sources */,
+				343946E22B82A34300932581 /* MainViewPresenter.swift in Sources */,
+				345CB7CA2B6D76D200D51688 /* EncryptPresenter.swift in Sources */,
 				342FF1D72B7BF8E3008DB4F6 /* AppStorageService.swift in Sources */,
 				345CB7CE2B700A9F00D51688 /* EncryptService.swift in Sources */,
 				342FF1D52B7BE99F008DB4F6 /* NewCheckpassFileView.swift in Sources */,

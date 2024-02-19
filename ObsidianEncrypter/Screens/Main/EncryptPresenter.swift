@@ -8,14 +8,8 @@
 import AppKit
 import Combine
 
-enum Folder {
-    case git
-    case vault
-}
-
 final class EncryptPresenter {
     enum Constants {
-        static let storageDir = "storage"
         static let gitDir = ".git"
         static let obsidianDir = ".obsidian"
     }
@@ -23,15 +17,17 @@ final class EncryptPresenter {
     private let state: MainState
     private let fileManager: FileManager
     private let appStorageService: AppStorageService
+    private let storageDir: String
 
     private var disposables = Set<AnyCancellable>()
 
     var isSyncAvailable: Bool {
-        !state.encryptionPass.isEmpty && !state.gitRepoPath.isEmpty && !state.vaultRepoPath.isEmpty
+        !state.password.isEmpty && !state.gitRepoPath.isEmpty && !state.vaultRepoPath.isEmpty
     }
 
-    init(state: MainState, fileManager: FileManager, appStorageService: AppStorageService = .make()) {
+    init(state: MainState, storageDir: String, fileManager: FileManager, appStorageService: AppStorageService) {
         self.state = state
+        self.storageDir = storageDir
         self.fileManager = fileManager
         self.appStorageService = appStorageService
 
@@ -66,7 +62,7 @@ final class EncryptPresenter {
 
     func invalidateSyncState() {
         state.needShowSyncedAlert = false
-        state.encryptionPass = ""
+        state.password = ""
     }
 
     func synchronize() {
@@ -74,12 +70,12 @@ final class EncryptPresenter {
             let gitDir = URL(filePath: state.gitRepoPath)
 
             defer {
-                state.encryptionPass = ""
+                state.password = ""
             }
 
             let checkStatus = CheckpassService.checkPassfile(
                 in: gitDir,
-                pass: state.encryptionPass,
+                pass: state.password,
                 fileManager: fileManager
             )
             if checkStatus == .fileNotExist {
@@ -94,7 +90,7 @@ final class EncryptPresenter {
             try EncryptService.encryptAll(
                 gitDir: gitDir,
                 vaultDir: URL(filePath: state.vaultRepoPath),
-                password: state.encryptionPass,
+                password: state.password,
                 fileManager: fileManager
             )
             try ShellExecutor.execute("git add .", dirURL: gitDir)
@@ -130,9 +126,9 @@ final class EncryptPresenter {
             state.dirError = .noGitDir
             return
         }
-        let starogeDirPath = url.appendingPathComponent(Constants.storageDir)
+        let starogeDirPath = url.appendingPathComponent(storageDir)
         guard fileManager.fileExists(atPath: starogeDirPath.path()) else {
-            state.dirError = .noStorageInBaseGitDir
+            state.dirError = .noStorageInBaseGitDir(storageDir)
             return
         }
 
@@ -153,43 +149,4 @@ final class EncryptPresenter {
         state.vaultRepoPath = path
         appStorageService.saveVaultRepoPath(url)
     }
-}
-
-extension FileManager {
-    func hiddenDirExists(_ hiddenDir: URL, in dir: URL) -> Bool {
-        let result = try? contentsOfDirectory(at: dir, includingPropertiesForKeys: [.isHiddenKey])
-            .first { url in
-                let values = try? url.resourceValues(forKeys: [.isHiddenKey])
-                return url == hiddenDir && values?.isHidden == true
-            }
-        return result != nil
-    }
-}
-
-final class MainState: ObservableObject {
-    enum DirError: LocalizedError {
-        case noGitDir
-        case noStorageInBaseGitDir
-        case noObsidianDir
-        case encryptError(String)
-
-        var errorDescription: String? {
-            switch self {
-            case .noGitDir:
-                return "Not valid git directory"
-            case .noStorageInBaseGitDir:
-                return "Git fodler should contains \(EncryptPresenter.Constants.storageDir) directory"
-            case .noObsidianDir:
-                return "Obsidian folder should contains \(EncryptPresenter.Constants.obsidianDir) directory"
-            case let .encryptError(message):
-                return "Encryption or sync error. Message: \(message)"
-            }
-        }
-    }
-
-    @Published var gitRepoPath: String = ""
-    @Published var vaultRepoPath: String = ""
-    @Published var dirError: DirError?
-    @Published var encryptionPass: String = ""
-    @Published var needShowSyncedAlert = false
 }

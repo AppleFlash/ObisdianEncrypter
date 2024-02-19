@@ -8,47 +8,78 @@
 import SwiftUI
 
 struct MainView: View {
-    private let presenter: MainPresenter
+    private let presenter: MainViewPresenter
     @ObservedObject var state: MainState
 
-    init(presenter: MainPresenter, state: MainState) {
+    init(presenter: MainViewPresenter, state: MainState) {
         self.presenter = presenter
         self.state = state
     }
 
     var body: some View {
-        VStack {
-            HStack {
-                TextField("Enter .git repo path", text: $state.gitRepoPath)
-                Button("Set path") {
-                    presenter.showFolderPrompt(folder: .git)
-                }
-                .alert(isPresented: .constant(state.dirError != nil), error: state.dirError) { error in
-                    Button("Ok") {
-                        presenter.invalidateError()
+        VStack(spacing: 8) {
+            VStack(alignment: .leading) {
+                Text("Git folder:")
+                HStack {
+                    TextField("Enter .git repo path", text: $state.gitRepoPath)
+                    Button("Set path") {
+                        presenter.showFolderPrompt(.git)
                     }
-                } message: { error in
-                    Text("Try again")
+                    .alert(isPresented: .constant(state.dirError != nil), error: state.dirError) { error in
+                        Button("Ok") {
+                            presenter.invalidateError()
+                        }
+                    } message: { error in
+                        Text("Try again")
+                    }
                 }
             }
-            HStack {
-                TextField("Enter Obisdian Vault repo path", text: $state.vaultRepoPath)
-                Button("Set path") {
-                    presenter.showFolderPrompt(folder: .vault)
+            VStack(alignment: .leading) {
+                Text("Obsidian folder:")
+                HStack {
+                    TextField("Enter Obisdian Vault repo path", text: $state.vaultRepoPath)
+                    Button("Set path") {
+                        presenter.showFolderPrompt(.vault)
+                    }
                 }
             }
 
-            SecureField("Encryption pass", text: $state.encryptionPass)
-
-            Button("Sync!") {
-                presenter.synchronize()
+            VStack(alignment: .leading) {
+                Text(state.meta.actionPasswordTitle)
+                HStack {
+                    SecureField(state.meta.actionPlaceholder, text: $state.password).frame(maxWidth: 150)
+                    Spacer()
+                }
             }
-            .disabled(!presenter.isSyncAvailable)
-            .alert("Synced!", isPresented: $state.needShowSyncedAlert) {
+
+            Button(state.meta.actionTitle) {
+                presenter.doAction()
+            }
+            .disabled(!presenter.isActionAvailable())
+            .alert(state.meta.actionSuccessMessage, isPresented: $state.needShowSyncedAlert) {
                 Button("Ok") {
-                    presenter.invalidateSyncState()
+                    presenter.invalidateActionState()
                 }
             }
         }
     }
 }
+
+#if DEBUG
+struct EncryptView_Preview: PreviewProvider {
+    static var previews: some View {
+        let state = MainState(
+            meta: MainState.Meta(
+            actionPasswordTitle: "Test action pass",
+            actionPlaceholder: "Test pass placeholder",
+            actionTitle: "Test action title",
+            actionSuccessMessage: "Test success message"
+            )
+        )
+        MainView(
+            presenter: .stub(),
+            state: state
+        )
+    }
+}
+#endif

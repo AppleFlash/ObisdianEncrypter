@@ -8,6 +8,10 @@
 import Foundation
 
 enum ShellExecutor {
+    enum ShError: Error {
+        case nonZeroCode
+    }
+
     @discardableResult
     static func execute(_ command: String, dirURL: URL) throws -> String {
         let process = Process()
@@ -20,6 +24,11 @@ enum ShellExecutor {
 
         try process.run()
         process.waitUntilExit()
+
+        let exitCode = process.terminationStatus
+        guard exitCode == 0 else {
+            throw ShError.nonZeroCode
+        }
 
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         guard let output = String(data: data, encoding: .utf8) else {

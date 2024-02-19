@@ -11,7 +11,10 @@ import SwiftUI
 struct ObsidianEncrypterApp: App {
     var body: some Scene {
         WindowGroup {
-            MainFactory.shared.createMain()
+            TabView  {
+                MainFactory.shared.createEncrypt().tabItem { Text("Encrypt") }
+                MainFactory.shared.createDecrypt().tabItem { Text("Decrypt") }
+            }
         }
         Settings {
             MainFactory.shared.createSettings()
@@ -24,9 +27,38 @@ class MainFactory {
 
     lazy var appStorageService = AppStorageService.make()
 
-    func createMain() -> some View {
-        let state = MainState()
-        let presenter = MainPresenter(state: state, fileManager: .default, appStorageService: appStorageService)
+    func createEncrypt() -> some View {
+        let state = MainState(
+            meta: MainState.Meta(
+                actionPasswordTitle: "Encrypt password:",
+                actionPlaceholder: "Encryption pass",
+                actionTitle: "Encrypt & Sync!",
+                actionSuccessMessage: "Synced!"
+            )
+        )
+        let presenter = MainViewPresenter.encryptPresenter(
+            state: state,
+            fileManager: .default,
+            appStorageService: appStorageService
+        )
+        let view = MainView(presenter: presenter, state: state)
+        return view
+    }
+
+    func createDecrypt() -> some View {
+        let state = MainState(
+            meta: MainState.Meta(
+                actionPasswordTitle: "Decrypt password:",
+                actionPlaceholder: "Decryption pass",
+                actionTitle: "Decrypt!",
+                actionSuccessMessage: "Decrypted!"
+            )
+        )
+        let presenter = MainViewPresenter.decryptPresenter(
+            state: state,
+            fileManager: .default,
+            appStorageService: appStorageService
+        )
         let view = MainView(presenter: presenter, state: state)
         return view
     }
