@@ -9,6 +9,12 @@ import Foundation
 import Combine
 
 final class MainState: ObservableObject {
+    enum ProgressState {
+        case notActive
+        case inProgress(String)
+        case done
+    }
+
     enum DirError: LocalizedError {
         case noGitDir
         case noStorageInBaseGitDir(String)
@@ -40,6 +46,7 @@ final class MainState: ObservableObject {
     @Published var dirError: DirError?
     @Published var password: String = ""
     @Published var needShowSyncedAlert = false
+    @Published var progressState: ProgressState = .notActive
 
     let meta: Meta
 

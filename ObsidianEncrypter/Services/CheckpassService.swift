@@ -25,22 +25,20 @@ enum CheckpassService {
         in repo: URL,
         pass: String,
         fileManager: FileManager = .default
-    ) -> CheckStatus {
-        let contents = catchError { try fileManager.contentsOfDirectory(atPath: repo.path(percentEncoded: false)) }
+    ) throws -> CheckStatus {
+        let contents = try fileManager.contentsOfDirectory(atPath: repo.path(percentEncoded: false))
         let existingCheckpass = contents.first { $0.hasSuffix(encSuffix) }
         guard let existingCheckpass else {
             return .fileNotExist
         }
 
         let outputFile = "checkpass.output"
-        catchError {
-            try EncryptService.decrypt(
-                existingCheckpass,
-                output: outputFile,
-                password: pass,
-                baseDir: repo
-            )
-        }
+        try EncryptService.decrypt(
+            existingCheckpass,
+            output: outputFile,
+            password: pass,
+            baseDir: repo
+        )
 
         let outputUrl = repo.appendingPathComponent(outputFile)
         defer {

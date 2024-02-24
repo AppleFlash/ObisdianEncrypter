@@ -73,7 +73,8 @@ final class EncryptPresenter {
                 state.password = ""
             }
 
-            let checkStatus = CheckpassService.checkPassfile(
+            state.progressState = .inProgress("Checking password...")
+            let checkStatus = try CheckpassService.checkPassfile(
                 in: gitDir,
                 pass: state.password,
                 fileManager: fileManager
@@ -87,17 +88,23 @@ final class EncryptPresenter {
                 return
             }
 
+            state.progressState = .inProgress("Encrypting...")
             try EncryptService.encryptAll(
                 gitDir: gitDir,
                 vaultDir: URL(filePath: state.vaultRepoPath),
                 password: state.password,
                 fileManager: fileManager
             )
+            state.progressState = .inProgress("Add to git...")
             try ShellExecutor.execute("git add .", dirURL: gitDir)
+            state.progressState = .inProgress("Creating commit...")
             try ShellExecutor.execute(#"git commit -m "Encrypt all""#, dirURL: gitDir)
+            state.progressState = .inProgress("Pushing to git...")
             try ShellExecutor.execute("git push", dirURL: gitDir)
             state.needShowSyncedAlert = true
+            state.progressState = .done
         } catch {
+            state.progressState = .notActive
             state.dirError = .encryptError(error.localizedDescription)
         }
     }

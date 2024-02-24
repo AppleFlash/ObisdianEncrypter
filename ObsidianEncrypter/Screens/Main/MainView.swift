@@ -52,13 +52,24 @@ struct MainView: View {
                 }
             }
 
-            Button(state.meta.actionTitle) {
-                presenter.doAction()
-            }
-            .disabled(!presenter.isActionAvailable())
-            .alert(state.meta.actionSuccessMessage, isPresented: $state.needShowSyncedAlert) {
-                Button("Ok") {
-                    presenter.invalidateActionState()
+            ZStack {
+                if case let .inProgress(progressMessage) = state.progressState {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                        Text(progressMessage)
+                        Spacer()
+                    }
+                }
+
+
+                Button(state.meta.actionTitle) {
+                    presenter.doAction()
+                }
+                .disabled(!presenter.isActionAvailable())
+                .alert(state.meta.actionSuccessMessage, isPresented: $state.needShowSyncedAlert) {
+                    Button("Ok") {
+                        presenter.invalidateActionState()
+                    }
                 }
             }
         }
@@ -70,10 +81,10 @@ struct EncryptView_Preview: PreviewProvider {
     static var previews: some View {
         let state = MainState(
             meta: MainState.Meta(
-            actionPasswordTitle: "Test action pass",
-            actionPlaceholder: "Test pass placeholder",
-            actionTitle: "Test action title",
-            actionSuccessMessage: "Test success message"
+                actionPasswordTitle: "Test action pass",
+                actionPlaceholder: "Test pass placeholder",
+                actionTitle: "Test action title",
+                actionSuccessMessage: "Test success message"
             )
         )
         MainView(
