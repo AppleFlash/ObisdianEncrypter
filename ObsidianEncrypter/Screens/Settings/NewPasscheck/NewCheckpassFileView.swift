@@ -39,7 +39,9 @@ struct NewCheckpassFileView: View {
             })
 
             Button {
-                presenter.createNewCheckpassFile()
+                Task {
+                    await presenter.createNewCheckpassFile()
+                }
             } label: {
                 Text("Create").frame(width: 100)
             }

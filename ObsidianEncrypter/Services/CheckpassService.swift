@@ -24,33 +24,38 @@ enum CheckpassService {
     static func checkPassfile(
         in repo: URL,
         pass: String,
-        fileManager: FileManager = .default
-    ) throws -> CheckStatus {
-        let contents = try fileManager.contentsOfDirectory(atPath: repo.path(percentEncoded: false))
-        let existingCheckpass = contents.first { $0.hasSuffix(encSuffix) }
-        guard let existingCheckpass else {
-            return .fileNotExist
+        fileManager: FileManager
+    ) async throws -> CheckStatus {
+        let task = Task.detached(priority: .userInitiated) {
+            let contents = try fileManager.contentsOfDirectory(atPath: repo.path(percentEncoded: false))
+            let existingCheckpass = contents.first { $0.hasSuffix(encSuffix) }
+            guard let existingCheckpass else {
+                return CheckStatus.fileNotExist
+            }
+
+            let outputFile = "checkpass.output"
+            try await EncryptService.decrypt(
+                existingCheckpass,
+                output: outputFile,
+                password: pass,
+                baseDir: repo
+            )
+
+            let outputUrl = repo.appendingPathComponent(outputFile)
+            defer {
+                catchError { try fileManager.removeItem(at: outputUrl) }
+            }
+            guard let content = try? String(contentsOf: outputUrl, encoding: .utf8) else {
+                return .notMatch
+            }
+
+            return content == Constants.checkpassContent ? .matched : .notMatch
         }
 
-        let outputFile = "checkpass.output"
-        try EncryptService.decrypt(
-            existingCheckpass,
-            output: outputFile,
-            password: pass,
-            baseDir: repo
-        )
-
-        let outputUrl = repo.appendingPathComponent(outputFile)
-        defer {
-            catchError { try fileManager.removeItem(at: outputUrl) }
-        }
-        guard let content = try? String(contentsOf: outputUrl, encoding: .utf8) else {
-            return .notMatch
-        }
-        return content == Constants.checkpassContent ? .matched : .notMatch
+        return try await task.value
     }
 
-    static func createPassfile(in repo: URL, name: String, pass: String, fileManager: FileManager) throws {
+    static func createPassfile(in repo: URL, name: String, pass: String, fileManager: FileManager) async throws {
         try deleteExistingCheckpassFile(in: repo, fileManager: fileManager)
 
         let newFileName = name + CheckpassFileConstants.checkpassSuffix
@@ -60,7 +65,7 @@ enum CheckpassService {
             atPath: newFilePath.path(percentEncoded: false),
             contents: CheckpassFileConstants.checkpassContent.data(using: .utf8)!
         )
-        try EncryptService.encrypt(
+        try await EncryptService.encrypt(
             newFileName,
             password: pass,
             baseDir: repo

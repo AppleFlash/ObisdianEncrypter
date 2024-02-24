@@ -17,7 +17,7 @@ struct MainViewPresenter {
     let showFolderPrompt: (Folder) -> Void
     let invalidateError: () -> Void
     let invalidateActionState: () -> Void
-    let doAction: () -> Void
+    let doAction: () async -> Void
 }
 
 extension MainViewPresenter {

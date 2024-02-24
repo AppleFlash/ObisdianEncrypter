@@ -19,18 +19,19 @@ enum EncryptService {
         vaultDir: URL,
         password: String,
         fileManager: FileManager
-    ) throws {
-        let storageDir = gitDir.appendingPathComponent(Constants.storageDirName)
-        if fileManager.fileExists(atPath: storageDir.path(percentEncoded: false)) {
+    ) async throws {
+        let task = Task {
+            let storageDir = gitDir.appendingPathComponent(Constants.storageDirName)
+            if fileManager.fileExists(atPath: storageDir.path(percentEncoded: false)) {
+                try fileManager.removeItem(at: storageDir)
+            }
+            try fileManager.copyItem(at: vaultDir, to: storageDir)
+            try await ShellExecutor.execute("zip -r \(Constants.outputZipName) \(Constants.storageDirName)", dirURL: gitDir)
             try fileManager.removeItem(at: storageDir)
-        }
-        try fileManager.copyItem(at: vaultDir, to: storageDir)
-        catchError {
-            try ShellExecutor.execute("zip -r \(Constants.outputZipName) \(Constants.storageDirName)", dirURL: gitDir)
-            try fileManager.removeItem(at: storageDir)
-            try encrypt(Constants.outputZipName, password: password, baseDir: gitDir)
+            try await encrypt(Constants.outputZipName, password: password, baseDir: gitDir)
             try fileManager.removeItem(at: gitDir.appendingPathComponent(Constants.outputZipName))
         }
+        return try await task.value
     }
 
     @discardableResult
@@ -38,9 +39,9 @@ enum EncryptService {
         _ file: String,
         password: String,
         baseDir: URL
-    ) throws -> String {
+    ) async throws -> String {
         let fileName = file + Constants.encSuffix
-        try ShellExecutor.execute(
+        try await ShellExecutor.execute(
             "openssl enc -aes-256-cbc -salt -pbkdf2 -in \(file) -out \(fileName) -k \(password)",
             dirURL: baseDir
         )
@@ -53,8 +54,8 @@ enum EncryptService {
         output: String,
         password: String,
         baseDir: URL
-    ) throws {
-        try ShellExecutor.execute(
+    ) async throws {
+        try await ShellExecutor.execute(
             "openssl enc -aes-256-cbc -d -pbkdf2 -in \(file) -out \(output) -k \(password)",
             dirURL: baseDir
         )

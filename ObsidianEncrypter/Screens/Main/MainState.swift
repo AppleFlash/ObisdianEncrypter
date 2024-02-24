@@ -13,6 +13,15 @@ final class MainState: ObservableObject {
         case notActive
         case inProgress(String)
         case done
+
+        var isInProgress: Bool {
+            switch self {
+            case .inProgress:
+                return true
+            default:
+                return false
+            }
+        }
     }
 
     enum DirError: LocalizedError {

@@ -13,27 +13,31 @@ enum ShellExecutor {
     }
 
     @discardableResult
-    static func execute(_ command: String, dirURL: URL) throws -> String {
-        let process = Process()
-        process.launchPath = "/bin/zsh"
-        process.currentDirectoryURL = dirURL
-        process.arguments = ["-c", "set -eu && " + command]
+    static func execute(_ command: String, dirURL: URL) async throws -> String {
+        let task = Task {
+            let process = Process()
+            process.launchPath = "/bin/zsh"
+            process.currentDirectoryURL = dirURL
+            process.arguments = ["-c", "set -eu && " + command]
 
-        let pipe = Pipe()
-        process.standardOutput = pipe
+            let pipe = Pipe()
+            process.standardOutput = pipe
 
-        try process.run()
-        process.waitUntilExit()
+            try process.run()
+            process.waitUntilExit()
 
-        let exitCode = process.terminationStatus
-        guard exitCode == 0 else {
-            throw ShError.nonZeroCode
+            let exitCode = process.terminationStatus
+            guard exitCode == 0 else {
+                throw ShError.nonZeroCode
+            }
+
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            guard let output = String(data: data, encoding: .utf8) else {
+                fatalError("ooops")
+            }
+            return output
         }
 
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        guard let output = String(data: data, encoding: .utf8) else {
-            fatalError("ooops")
-        }
-        return output
+        return try await task.value
     }
 }

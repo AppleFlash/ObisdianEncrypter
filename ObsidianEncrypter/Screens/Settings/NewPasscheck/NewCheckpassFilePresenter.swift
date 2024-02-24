@@ -43,23 +43,25 @@ final class NewCheckpassFilePresenter {
             .store(in: &disposables)
     }
 
-    func createNewCheckpassFile() {
+    func createNewCheckpassFile() async {
         guard let gitRepoPath = state.gitRepoPath else {
             fatalError("Git path not set")
         }
 
         do {
             let gitPathUrl = URL(filePath: gitRepoPath)
-            try CheckpassService.createPassfile(
+            try await CheckpassService.createPassfile(
                 in: gitPathUrl,
                 name: state.checkfileName,
                 pass: state.checkfilePass,
                 fileManager: fileManager
             )
 
-            state.checkfileName = ""
-            state.checkfilePass = ""
-            state.needShowSavedAlert = true
+            await MainActor.run {
+                state.checkfileName = ""
+                state.checkfilePass = ""
+                state.needShowSavedAlert = true
+            }
         } catch {
             fatalError(error.localizedDescription)
         }

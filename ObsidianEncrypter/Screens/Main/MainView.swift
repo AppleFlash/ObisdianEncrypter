@@ -63,7 +63,9 @@ struct MainView: View {
 
 
                 Button(state.meta.actionTitle) {
-                    presenter.doAction()
+                    Task {
+                        await presenter.doAction()
+                    }
                 }
                 .disabled(!presenter.isActionAvailable())
                 .alert(state.meta.actionSuccessMessage, isPresented: $state.needShowSyncedAlert) {

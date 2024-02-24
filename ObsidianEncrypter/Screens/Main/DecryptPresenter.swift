@@ -17,7 +17,7 @@ final class DecryptPresenter {
     private var disposables = Set<AnyCancellable>()
 
     var isSyncAvailable: Bool {
-        !state.password.isEmpty && !state.gitRepoPath.isEmpty && !state.vaultRepoPath.isEmpty
+        !state.password.isEmpty && !state.gitRepoPath.isEmpty && !state.vaultRepoPath.isEmpty && !state.progressState.isInProgress
     }
 
     init(state: MainState, storageFileName: String, fileManager: FileManager, appStorageService: AppStorageService) {
@@ -61,7 +61,7 @@ final class DecryptPresenter {
         state.password = ""
     }
 
-    func decrypt() {
+    func decrypt() async {
         let gitDir = URL(filePath: state.gitRepoPath)
         let vaultDir = URL(filePath: state.vaultRepoPath)
         let zip = "output"
@@ -70,23 +70,26 @@ final class DecryptPresenter {
         
         let outputVaultZipPath = vaultDir.appendingPathComponent(zip).appendingPathExtension("zip")
 
-        defer {
+        @MainActor func reset() {
             state.password = ""
+            state.progressState = .done
         }
 
-        func clear() {
+        func clean() {
             try? fileManager.removeItem(at: outputPath)
             try? fileManager.removeItem(at: newOutputPath)
         }
 
         do {
-            try EncryptService.decrypt(
+            await updateProgress("Decryptig...")
+            try await EncryptService.decrypt(
                 storageFileName,
                 output: zip,
                 password: state.password,
                 baseDir: gitDir
             )
 
+            await updateProgress("Moving folder...")
             try fileManager.moveItem(at: outputPath, to: newOutputPath)
 
             try fileManager.moveItem(
@@ -94,14 +97,26 @@ final class DecryptPresenter {
                 to: outputVaultZipPath
             )
 
-            state.needShowSyncedAlert = true
+            await MainActor.run {
+                state.needShowSyncedAlert = true
+            }
         } catch ShellExecutor.ShError.nonZeroCode {
-            clear()
-            state.dirError = .decryptError("Password probably incorrect")
+            clean()
+            await MainActor.run {
+                state.dirError = .decryptError("Password probably incorrect")
+            }
         } catch {
-            clear()
-            state.dirError = .decryptError(error.localizedDescription)
+            clean()
+            await MainActor.run {
+                state.dirError = .decryptError(error.localizedDescription)
+            }
         }
+
+        await reset()
+    }
+
+    @MainActor private func updateProgress(_ text: String) async {
+        state.progressState = .inProgress(text)
     }
 
     private func subscribePathChanges() {

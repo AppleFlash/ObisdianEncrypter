@@ -22,7 +22,7 @@ final class EncryptPresenter {
     private var disposables = Set<AnyCancellable>()
 
     var isSyncAvailable: Bool {
-        !state.password.isEmpty && !state.gitRepoPath.isEmpty && !state.vaultRepoPath.isEmpty
+        !state.password.isEmpty && !state.gitRepoPath.isEmpty && !state.vaultRepoPath.isEmpty && !state.progressState.isInProgress
     }
 
     init(state: MainState, storageDir: String, fileManager: FileManager, appStorageService: AppStorageService) {
@@ -65,48 +65,59 @@ final class EncryptPresenter {
         state.password = ""
     }
 
-    func synchronize() {
+    func synchronize() async {
+        @MainActor func clean() async {
+            state.password = ""
+        }
+        
         do {
             let gitDir = URL(filePath: state.gitRepoPath)
 
-            defer {
-                state.password = ""
-            }
-
-            state.progressState = .inProgress("Checking password...")
-            let checkStatus = try CheckpassService.checkPassfile(
+            await updateProgress("Checking password...")
+            let checkStatus = try await CheckpassService.checkPassfile(
                 in: gitDir,
                 pass: state.password,
                 fileManager: fileManager
             )
             if checkStatus == .fileNotExist {
                 state.dirError = .encryptError("You should create passfile first")
+                await clean()
                 return
             }
             if checkStatus == .notMatch {
                 state.dirError = .encryptError("Incorrect password. Create new file or try to remember")
+                await clean()
                 return
             }
 
-            state.progressState = .inProgress("Encrypting...")
-            try EncryptService.encryptAll(
+            await updateProgress("Encrypting...")
+            try await EncryptService.encryptAll(
                 gitDir: gitDir,
                 vaultDir: URL(filePath: state.vaultRepoPath),
                 password: state.password,
                 fileManager: fileManager
             )
-            state.progressState = .inProgress("Add to git...")
-            try ShellExecutor.execute("git add .", dirURL: gitDir)
-            state.progressState = .inProgress("Creating commit...")
-            try ShellExecutor.execute(#"git commit -m "Encrypt all""#, dirURL: gitDir)
-            state.progressState = .inProgress("Pushing to git...")
-            try ShellExecutor.execute("git push", dirURL: gitDir)
-            state.needShowSyncedAlert = true
-            state.progressState = .done
+            await updateProgress("Add to git...")
+            try await ShellExecutor.execute("git add .", dirURL: gitDir)
+            await updateProgress("Creating commit...")
+            try await ShellExecutor.execute(#"git commit -m "Encrypt all""#, dirURL: gitDir)
+            await updateProgress("Pushing to git...")
+            try await ShellExecutor.execute("git push", dirURL: gitDir)
+            await MainActor.run {
+                state.needShowSyncedAlert = true
+                state.progressState = .done
+            }
         } catch {
-            state.progressState = .notActive
-            state.dirError = .encryptError(error.localizedDescription)
+            await MainActor.run {
+                state.progressState = .notActive
+                state.dirError = .encryptError(error.localizedDescription)
+            }
+            await clean()
         }
+    }
+
+    @MainActor private func updateProgress(_ text: String) async {
+        state.progressState = .inProgress(text)
     }
 
     private func subscribePathChanges() {
