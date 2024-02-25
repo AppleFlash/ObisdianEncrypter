@@ -10,8 +10,11 @@ import Combine
 
 final class DecryptPresenter {
     private let state: MainState
-    private let fileManager: FileManager
+    private let fileManager: FileManagerService
     private let appStorageService: AppStorageService
+    private let encryptService: EncryptService
+    private let shellExecutor: ShellExecutor
+    private let checkpassService: CheckpassService
 
     private let storageFileName: String
     private var disposables = Set<AnyCancellable>()
@@ -20,11 +23,22 @@ final class DecryptPresenter {
         !state.password.isEmpty && !state.gitRepoPath.isEmpty && !state.vaultRepoPath.isEmpty && !state.progressState.isInProgress
     }
 
-    init(state: MainState, storageFileName: String, fileManager: FileManager, appStorageService: AppStorageService) {
+    init(
+        state: MainState,
+        storageFileName: String,
+        fileManager: FileManagerService,
+        appStorageService: AppStorageService,
+        encryptService: EncryptService,
+        shellExecutor: ShellExecutor,
+        checkpassService: CheckpassService
+    ) {
         self.state = state
         self.storageFileName = storageFileName
         self.fileManager = fileManager
         self.appStorageService = appStorageService
+        self.encryptService = encryptService
+        self.shellExecutor = shellExecutor
+        self.checkpassService = checkpassService
 
         subscribePathChanges()
     }
@@ -67,7 +81,7 @@ final class DecryptPresenter {
         let zip = "output"
         let outputPath = gitDir.appendingPathComponent(zip)
         let newOutputPath = outputPath.appendingPathExtension("zip")
-        
+
         let outputVaultZipPath = vaultDir.appendingPathComponent(zip).appendingPathExtension("zip")
 
         @MainActor func reset() {
@@ -76,26 +90,24 @@ final class DecryptPresenter {
         }
 
         func clean() {
-            try? fileManager.removeItem(at: outputPath)
-            try? fileManager.removeItem(at: newOutputPath)
+            try? fileManager.removeItem(outputPath)
+            try? fileManager.removeItem(newOutputPath)
         }
 
         do {
             await updateProgress("Decryptig...")
-            try await EncryptService.decrypt(
-                storageFileName,
+            let decryptPayload = EncryptService.Decrypt.Payload(
+                file: storageFileName,
                 output: zip,
                 password: state.password,
                 baseDir: gitDir
             )
+            let decryptDeps = EncryptService.Decrypt.Dependencies(shellExecutor: shellExecutor)
+            try await encryptService.decrypt(decryptPayload, decryptDeps)
 
             await updateProgress("Moving folder...")
-            try fileManager.moveItem(at: outputPath, to: newOutputPath)
-
-            try fileManager.moveItem(
-                at: newOutputPath,
-                to: outputVaultZipPath
-            )
+            try fileManager.moveItem(outputPath, newOutputPath)
+            try fileManager.moveItem(newOutputPath, outputVaultZipPath)
 
             await MainActor.run {
                 state.needShowSyncedAlert = true
@@ -139,7 +151,7 @@ final class DecryptPresenter {
 
     private func checkIfGitRepo(_ url: URL) {
         let storagePath = url.appendingPathComponent(storageFileName)
-        guard fileManager.fileExists(atPath: storagePath.path()) else {
+        guard fileManager.fileExistsAtPath(storagePath.path()) else {
             state.dirError = .noEncryptedStore
             return
         }

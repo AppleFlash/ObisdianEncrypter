@@ -21,14 +21,27 @@ final class NewCheckpassFilePresenter {
 
     private let appStorageService: AppStorageService
     private let state: NewCheckpassState
-    private let fileManager: FileManager
+    private let fileManager: FileManagerService
+    private let encryptService: EncryptService
+    private let shellExecutor: ShellExecutor
+    private let checkpassService: CheckpassService
 
     private var disposables = Set<AnyCancellable>()
 
-    init(appStorageService: AppStorageService, state: NewCheckpassState, fileManager: FileManager = .default) {
+    init(
+        appStorageService: AppStorageService,
+        state: NewCheckpassState,
+        fileManager: FileManagerService,
+        encryptService: EncryptService,
+        shellExecutor: ShellExecutor,
+        checkpassService: CheckpassService
+    ) {
         self.appStorageService = appStorageService
         self.state = state
         self.fileManager = fileManager
+        self.encryptService = encryptService
+        self.shellExecutor = shellExecutor
+        self.checkpassService = checkpassService
 
         subscribePathChanges()
     }
@@ -50,12 +63,17 @@ final class NewCheckpassFilePresenter {
 
         do {
             let gitPathUrl = URL(filePath: gitRepoPath)
-            try await CheckpassService.createPassfile(
-                in: gitPathUrl,
+            let createCheckpassPayload = CheckpassService.CreatePassfile.Payload(
+                repo: gitPathUrl,
                 name: state.checkfileName,
-                pass: state.checkfilePass,
-                fileManager: fileManager
+                pass: state.checkfilePass
             )
+            let createCheckpassDeps = CheckpassService.CreatePassfile.Dependencies(
+                fileManager: fileManager,
+                shellExecutor: shellExecutor,
+                encryptService: encryptService
+            )
+            try await checkpassService.createPassfile(createCheckpassPayload, createCheckpassDeps)
 
             await MainActor.run {
                 state.checkfileName = ""

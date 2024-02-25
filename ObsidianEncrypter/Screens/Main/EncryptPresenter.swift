@@ -15,9 +15,12 @@ final class EncryptPresenter {
     }
 
     private let state: MainState
-    private let fileManager: FileManager
+    private let fileManager: FileManagerService
     private let appStorageService: AppStorageService
     private let storageDir: String
+    private let encryptService: EncryptService
+    private let shellExecutor: ShellExecutor
+    private let checkpassService: CheckpassService
 
     private var disposables = Set<AnyCancellable>()
 
@@ -25,11 +28,22 @@ final class EncryptPresenter {
         !state.password.isEmpty && !state.gitRepoPath.isEmpty && !state.vaultRepoPath.isEmpty && !state.progressState.isInProgress
     }
 
-    init(state: MainState, storageDir: String, fileManager: FileManager, appStorageService: AppStorageService) {
+    init(
+        state: MainState,
+        storageDir: String,
+        fileManager: FileManagerService,
+        appStorageService: AppStorageService,
+        encryptService: EncryptService,
+        shellExecutor: ShellExecutor,
+        checkpassService: CheckpassService
+    ) {
         self.state = state
         self.storageDir = storageDir
         self.fileManager = fileManager
         self.appStorageService = appStorageService
+        self.encryptService = encryptService
+        self.shellExecutor = shellExecutor
+        self.checkpassService = checkpassService
 
         subscribePathChanges()
     }
@@ -74,11 +88,13 @@ final class EncryptPresenter {
             let gitDir = URL(filePath: state.gitRepoPath)
 
             await updateProgress("Checking password...")
-            let checkStatus = try await CheckpassService.checkPassfile(
-                in: gitDir,
-                pass: state.password,
-                fileManager: fileManager
+            let checkpassPayload = CheckpassService.CheckPassfile.Payload(repo: gitDir, pass: state.password)
+            let checkpassDeps = CheckpassService.CheckPassfile.Dependencies(
+                fileManager: fileManager,
+                encryptService: encryptService,
+                shellExecutor: shellExecutor
             )
+            let checkStatus = try await checkpassService.checkPassfile(checkpassPayload, checkpassDeps)
             if checkStatus == .fileNotExist {
                 state.dirError = .encryptError("You should create passfile first")
                 await clean()
@@ -91,18 +107,22 @@ final class EncryptPresenter {
             }
 
             await updateProgress("Encrypting...")
-            try await EncryptService.encryptAll(
+            let encryptAllPayload = EncryptService.EncryptAll.Payload(
                 gitDir: gitDir,
                 vaultDir: URL(filePath: state.vaultRepoPath),
-                password: state.password,
-                fileManager: fileManager
+                password: state.password
             )
+            let encryptAllDeps = EncryptService.EncryptAll.Dependencies(
+                fileManager: fileManager,
+                shellExecutor: shellExecutor
+            )
+            try await encryptService.encryptAll(encryptAllPayload, encryptAllDeps)
             await updateProgress("Add to git...")
-            try await ShellExecutor.execute("git add .", dirURL: gitDir)
+            _ = try await shellExecutor.execute("git add .", gitDir)
             await updateProgress("Creating commit...")
-            try await ShellExecutor.execute(#"git commit -m "Encrypt all""#, dirURL: gitDir)
+            _ = try await shellExecutor.execute(#"git commit -m "Encrypt all""#, gitDir)
             await updateProgress("Pushing to git...")
-            try await ShellExecutor.execute("git push", dirURL: gitDir)
+            _ = try await shellExecutor.execute("git push", gitDir)
             await MainActor.run {
                 state.needShowSyncedAlert = true
                 state.progressState = .done
@@ -140,12 +160,12 @@ final class EncryptPresenter {
 
     private func checkIfGitRepo(_ url: URL) {
         let gitDirPath = url.appendingPathComponent(Constants.gitDir)
-        guard fileManager.hiddenDirExists(gitDirPath, in: url) else {
+        guard fileManager.hiddenDirExists(gitDirPath, url) else {
             state.dirError = .noGitDir
             return
         }
         let starogeDirPath = url.appendingPathComponent(storageDir)
-        guard fileManager.fileExists(atPath: starogeDirPath.path()) else {
+        guard fileManager.fileExistsAtPath(starogeDirPath.path()) else {
             state.dirError = .noStorageInBaseGitDir(storageDir)
             return
         }
@@ -158,7 +178,7 @@ final class EncryptPresenter {
 
     private func checkIfObsidianRepo(_ url: URL) {
         let obsidianDirPath = url.appendingPathComponent(Constants.obsidianDir)
-        guard fileManager.hiddenDirExists(obsidianDirPath, in: url) else {
+        guard fileManager.hiddenDirExists(obsidianDirPath, url) else {
             state.dirError = .noObsidianDir
             return
         }

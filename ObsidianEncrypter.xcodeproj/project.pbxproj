@@ -25,6 +25,7 @@
 		345CB7CC2B6EB29000D51688 /* ShellExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345CB7CB2B6EB29000D51688 /* ShellExecutor.swift */; };
 		345CB7CE2B700A9F00D51688 /* EncryptService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345CB7CD2B700A9F00D51688 /* EncryptService.swift */; };
 		345CB7D32B700C1200D51688 /* Try+ErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345CB7D22B700C1200D51688 /* Try+ErrorHandler.swift */; };
+		3462C74A2B8B99C30038DF84 /* FileManagerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3462C7492B8B99C30038DF84 /* FileManagerService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +60,7 @@
 		345CB7CB2B6EB29000D51688 /* ShellExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellExecutor.swift; sourceTree = "<group>"; };
 		345CB7CD2B700A9F00D51688 /* EncryptService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptService.swift; sourceTree = "<group>"; };
 		345CB7D22B700C1200D51688 /* Try+ErrorHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Try+ErrorHandler.swift"; sourceTree = "<group>"; };
+		3462C7492B8B99C30038DF84 /* FileManagerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManagerService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,6 +163,7 @@
 				345CB7CD2B700A9F00D51688 /* EncryptService.swift */,
 				342FF1D62B7BF8E3008DB4F6 /* AppStorageService.swift */,
 				342FF1DB2B7D4F1F008DB4F6 /* CheckpassService.swift */,
+				3462C7492B8B99C30038DF84 /* FileManagerService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -301,6 +304,7 @@
 				342FF1D72B7BF8E3008DB4F6 /* AppStorageService.swift in Sources */,
 				345CB7CE2B700A9F00D51688 /* EncryptService.swift in Sources */,
 				342FF1D52B7BE99F008DB4F6 /* NewCheckpassFileView.swift in Sources */,
+				3462C74A2B8B99C30038DF84 /* FileManagerService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

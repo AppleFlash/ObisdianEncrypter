@@ -29,7 +29,7 @@ struct NewCheckpassFileView: View {
     private var contentView: some View {
         VStack {
             VStack(alignment: .leading) {
-                Text("File's name. It will have \(CheckpassService.encSuffix) suffix")
+                Text("File's name. It will have \(CheckpassService.Constants.encSuffix) suffix")
                 TextField("Enter file name", text: $state.checkfileName)
             }
 

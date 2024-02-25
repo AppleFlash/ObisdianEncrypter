@@ -7,37 +7,42 @@
 
 import Foundation
 
-enum ShellExecutor {
+struct ShellExecutor {
     enum ShError: Error {
         case nonZeroCode
     }
 
-    @discardableResult
-    static func execute(_ command: String, dirURL: URL) async throws -> String {
-        let task = Task {
-            let process = Process()
-            process.launchPath = "/bin/zsh"
-            process.currentDirectoryURL = dirURL
-            process.arguments = ["-c", "set -eu && " + command]
+    let execute: (_ command: String, _ dirURL: URL) async throws -> String
+}
 
-            let pipe = Pipe()
-            process.standardOutput = pipe
+extension ShellExecutor {
+    static func baseExecutor() -> Self {
+        Self { command, dirURL in
+            let task = Task {
+                let process = Process()
+                process.launchPath = "/bin/zsh"
+                process.currentDirectoryURL = dirURL
+                process.arguments = ["-c", "set -eu && " + command]
 
-            try process.run()
-            process.waitUntilExit()
+                let pipe = Pipe()
+                process.standardOutput = pipe
 
-            let exitCode = process.terminationStatus
-            guard exitCode == 0 else {
-                throw ShError.nonZeroCode
+                try process.run()
+                process.waitUntilExit()
+
+                let exitCode = process.terminationStatus
+                guard exitCode == 0 else {
+                    throw ShError.nonZeroCode
+                }
+
+                let data = pipe.fileHandleForReading.readDataToEndOfFile()
+                guard let output = String(data: data, encoding: .utf8) else {
+                    fatalError("ooops")
+                }
+                return output
             }
 
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            guard let output = String(data: data, encoding: .utf8) else {
-                fatalError("ooops")
-            }
-            return output
+            return try await task.value
         }
-
-        return try await task.value
     }
 }

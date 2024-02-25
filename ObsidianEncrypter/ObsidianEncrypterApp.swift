@@ -38,7 +38,6 @@ class MainFactory {
         )
         let presenter = MainViewPresenter.encryptPresenter(
             state: state,
-            fileManager: .default,
             appStorageService: appStorageService
         )
         let view = MainView(presenter: presenter, state: state)
@@ -56,7 +55,6 @@ class MainFactory {
         )
         let presenter = MainViewPresenter.decryptPresenter(
             state: state,
-            fileManager: .default,
             appStorageService: appStorageService
         )
         let view = MainView(presenter: presenter, state: state)
@@ -65,7 +63,14 @@ class MainFactory {
 
     func createSettings() -> some View {
         let state = NewCheckpassState()
-        let presenter = NewCheckpassFilePresenter(appStorageService: appStorageService, state: state)
+        let presenter = NewCheckpassFilePresenter(
+            appStorageService: appStorageService,
+            state: state,
+            fileManager: .defaultFileManager(),
+            encryptService: .defaultService(),
+            shellExecutor: .baseExecutor(),
+            checkpassService: .defaultService()
+        )
 
         return SettingsView {
             NewCheckpassFileView(state: state, presenter: presenter)

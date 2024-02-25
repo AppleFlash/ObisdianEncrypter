@@ -23,14 +23,16 @@ struct MainViewPresenter {
 extension MainViewPresenter {
     static func encryptPresenter(
         state: MainState,
-        fileManager: FileManager,
         appStorageService: AppStorageService
     ) -> MainViewPresenter {
         let presenter = EncryptPresenter(
             state: state, 
             storageDir: "storage",
-            fileManager: fileManager,
-            appStorageService: appStorageService
+            fileManager: .defaultFileManager(),
+            appStorageService: appStorageService,
+            encryptService: .defaultService(),
+            shellExecutor: .baseExecutor(),
+            checkpassService: .defaultService()
         )
         return MainViewPresenter(
             isActionAvailable: { [presenter] in presenter.isSyncAvailable },
@@ -43,14 +45,16 @@ extension MainViewPresenter {
 
     static func decryptPresenter(
         state: MainState,
-        fileManager: FileManager,
         appStorageService: AppStorageService
     ) -> MainViewPresenter {
         let presenter = DecryptPresenter(
             state: state, 
             storageFileName: "storage.zip.enc",
-            fileManager: fileManager,
-            appStorageService: appStorageService
+            fileManager: .defaultFileManager(),
+            appStorageService: appStorageService,
+            encryptService: .defaultService(),
+            shellExecutor: .baseExecutor(),
+            checkpassService: .defaultService()
         )
         return MainViewPresenter(
             isActionAvailable: { [presenter] in presenter.isSyncAvailable },
