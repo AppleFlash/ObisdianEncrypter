@@ -1,0 +1,6 @@
+sources:
+  - ObsidianEncrypter
+templates:
+  - scripts/templates
+output:
+  ObsidianEncrypter/generated
