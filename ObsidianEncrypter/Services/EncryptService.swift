@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct EncryptService {
+struct EncryptService: ClosureMockable {
     enum Constants {
         static let storageDirName = "storage"
         static let outputZipName = "storage.zip"

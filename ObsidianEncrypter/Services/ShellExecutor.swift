@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ShellExecutor {
+struct ShellExecutor: ClosureMockable {
     enum ShError: Error {
         case nonZeroCode
     }

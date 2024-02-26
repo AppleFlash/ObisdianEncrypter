@@ -8,29 +8,110 @@
 import XCTest
 @testable import ObsidianEncrypter
 
-final class ObsidianEncrypterTests: XCTestCase {
+final class CheckpassServiceTests: XCTestCase {
+    let fileManagerMock = FileManagerServiceMock()
+    let encryptServiceMock = EncryptServiceMock()
+    let shellExecutorMock = ShellExecutorMock()
+    let fileReaderMock = FileReaderMock()
+    lazy var deps = CheckpassService.CheckPassfile.Dependencies(
+        fileManager: .mock(fileManagerMock),
+        encryptService: .mock(encryptServiceMock),
+        shellExecutor: .mock(shellExecutorMock),
+        fileReader: .mock(fileReaderMock)
+    )
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    func test_whenNoCheckpassFile_thenStatusFileNotExist() async throws {
+        let sut = CheckpassService.defaultService()
+        let testURL = try XCTUnwrap(URL(string: "test.com"))
+        let testPass = "password"
+        let payload = CheckpassService.CheckPassfile.Payload(repo: testURL, pass: testPass)
+        fileManagerMock.contentsOfDirectoryStub = { _ in ["test.txt"] }
+
+        let status = try await sut.checkPassfile(payload, deps)
+
+        XCTAssertEqual(status, .fileNotExist)
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    func test_whenCheckpassFileExistButWrongPas_thenStatusNotMatch() async throws {
+        let sut = CheckpassService.defaultService()
+        let testURL = try XCTUnwrap(URL(string: "test.com"))
+        let testPass = "password"
+        let payload = CheckpassService.CheckPassfile.Payload(repo: testURL, pass: testPass)
+        fileManagerMock.contentsOfDirectoryStub = { _ in ["test\(CheckpassService.Constants.encSuffix)"] }
+        fileManagerMock.removeItemStub = { _ in () }
+        encryptServiceMock.decryptStub = { _, _ in () }
+        fileReaderMock.readFileStub = { _ in "wrong text" }
+
+        let status = try await sut.checkPassfile(payload, deps)
+
+        XCTAssertEqual(status, .notMatch)
+        XCTAssertEqual(encryptServiceMock.decryptReceivedArgs[0].0.output, "checkpass.output")
+    }
+}
+
+final class CheckpassServiceTests2: XCTestCase {
+    func test_whenNoCheckpassFile_thenStatusFileNotExist() async throws {
+        let sut = CheckpassService.defaultService()
+        let testURL = try XCTUnwrap(URL(string: "test.com"))
+        let testPass = "password"
+        let payload = CheckpassService.CheckPassfile.Payload(repo: testURL, pass: testPass)
+        let deps = CheckpassService.CheckPassfile.Dependencies(
+            fileManager: FileManagerService(
+                fileExistsAtPath: { _ in fatalError() },
+                removeItem: { _ in fatalError() },
+                copyItem: { _, _ in fatalError() },
+                contentsOfDirectory: { _ in ["test.txt"] },
+                createFile: { _, _ in fatalError() },
+                hiddenDirExists: { _, _ in fatalError() },
+                moveItem: { _, _ in fatalError() }
+            ),
+            encryptService: EncryptService(
+                encryptAll: { _, _ in fatalError() },
+                encrypt: { _, _ in fatalError() },
+                decrypt: { _, _ in fatalError() }
+            ),
+            shellExecutor: ShellExecutor(execute: { _, _ in fatalError() }),
+            fileReader: FileReader(readFile: { _ in fatalError() })
+        )
+
+        let status = try await sut.checkPassfile(payload, deps)
+
+        XCTAssertEqual(status, .fileNotExist)
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
+    func test_whenCheckpassFileExistButWrongPas_thenStatusNotMatch() async throws {
+        let sut = CheckpassService.defaultService()
+        let testURL = try XCTUnwrap(URL(string: "test.com"))
+        let testPass = "password"
+        let payload = CheckpassService.CheckPassfile.Payload(repo: testURL, pass: testPass)
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
+        var receivedOutput: String?
 
+        let deps = CheckpassService.CheckPassfile.Dependencies(
+            fileManager: FileManagerService(
+                fileExistsAtPath: { _ in fatalError() },
+                removeItem: { _ in () },
+                copyItem: { _, _ in fatalError() },
+                contentsOfDirectory: { _ in ["test\(CheckpassService.Constants.encSuffix)"] },
+                createFile: { _, _ in fatalError() },
+                hiddenDirExists: { _, _ in fatalError() },
+                moveItem: { _, _ in fatalError() }
+            ),
+            encryptService: EncryptService(
+                encryptAll: { _, _ in fatalError() },
+                encrypt: { _, _ in fatalError() },
+                decrypt: { payloadArg, _ in
+                    receivedOutput = payloadArg.output
+                    return ()
+                }
+            ),
+            shellExecutor: ShellExecutor(execute: { _, _ in fatalError() }),
+            fileReader: FileReader(readFile: { _ in "wrong text" })
+        )
+
+        let status = try await sut.checkPassfile(payload, deps)
+
+        XCTAssertEqual(status, .notMatch)
+        XCTAssertEqual(receivedOutput, "checkpass.output")
+    }
 }

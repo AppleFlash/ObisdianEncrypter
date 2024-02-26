@@ -32,7 +32,8 @@ extension MainViewPresenter {
             appStorageService: appStorageService,
             encryptService: .defaultService(),
             shellExecutor: .baseExecutor(),
-            checkpassService: .defaultService()
+            checkpassService: .defaultService(),
+            fileReader: .baseReader()
         )
         return MainViewPresenter(
             isActionAvailable: { [presenter] in presenter.isSyncAvailable },

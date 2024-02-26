@@ -5,4 +5,4 @@
 //  Created by Sedinkin on 26.02.2024.
 //
 
-import Foundation
+protocol ClosureMockable {}

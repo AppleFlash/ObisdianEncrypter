@@ -30,6 +30,7 @@ struct CheckpassService {
             let fileManager: FileManagerService
             let encryptService: EncryptService
             let shellExecutor: ShellExecutor
+            let fileReader: FileReader
         }
     }
 
@@ -89,7 +90,8 @@ private enum CheckpassServiceImp {
             defer {
                 catchError { try dependencies.fileManager.removeItem(outputUrl) }
             }
-            guard let content = try? String(contentsOf: outputUrl, encoding: .utf8) else {
+
+            guard let content = try? dependencies.fileReader.readFile(outputUrl) else {
                 return .notMatch
             }
 

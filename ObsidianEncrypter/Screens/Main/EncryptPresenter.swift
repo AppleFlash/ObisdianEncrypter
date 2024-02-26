@@ -21,6 +21,7 @@ final class EncryptPresenter {
     private let encryptService: EncryptService
     private let shellExecutor: ShellExecutor
     private let checkpassService: CheckpassService
+    private let fileReader: FileReader
 
     private var disposables = Set<AnyCancellable>()
 
@@ -35,7 +36,8 @@ final class EncryptPresenter {
         appStorageService: AppStorageService,
         encryptService: EncryptService,
         shellExecutor: ShellExecutor,
-        checkpassService: CheckpassService
+        checkpassService: CheckpassService,
+        fileReader: FileReader
     ) {
         self.state = state
         self.storageDir = storageDir
@@ -44,6 +46,7 @@ final class EncryptPresenter {
         self.encryptService = encryptService
         self.shellExecutor = shellExecutor
         self.checkpassService = checkpassService
+        self.fileReader = fileReader
 
         subscribePathChanges()
     }
@@ -92,7 +95,8 @@ final class EncryptPresenter {
             let checkpassDeps = CheckpassService.CheckPassfile.Dependencies(
                 fileManager: fileManager,
                 encryptService: encryptService,
-                shellExecutor: shellExecutor
+                shellExecutor: shellExecutor,
+                fileReader: fileReader
             )
             let checkStatus = try await checkpassService.checkPassfile(checkpassPayload, checkpassDeps)
             if checkStatus == .fileNotExist {

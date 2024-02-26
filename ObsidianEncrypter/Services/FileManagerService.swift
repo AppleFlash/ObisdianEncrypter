@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct FileManagerService {
+struct FileManagerService: ClosureMockable {
     let fileExistsAtPath: (String) -> Bool
     let removeItem: (URL) throws -> Void
     let copyItem: (_ source: URL, _ destination: URL) throws -> Void
