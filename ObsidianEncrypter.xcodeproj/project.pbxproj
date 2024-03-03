@@ -29,6 +29,7 @@
 		3462C74D2B8BD9480038DF84 /* ClosureMockable.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3462C74C2B8BD9480038DF84 /* ClosureMockable.generated.swift */; };
 		3462C74F2B8C72940038DF84 /* ClosureMockable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3462C74E2B8C72940038DF84 /* ClosureMockable.swift */; };
 		34F574942B8D223800445F68 /* FileReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F574932B8D223800445F68 /* FileReader.swift */; };
+		34FD62B92B93980D00DCDCAA /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34FD62B82B93980D00DCDCAA /* KeychainService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +68,7 @@
 		3462C74C2B8BD9480038DF84 /* ClosureMockable.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClosureMockable.generated.swift; sourceTree = "<group>"; };
 		3462C74E2B8C72940038DF84 /* ClosureMockable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosureMockable.swift; sourceTree = "<group>"; };
 		34F574932B8D223800445F68 /* FileReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileReader.swift; sourceTree = "<group>"; };
+		34FD62B82B93980D00DCDCAA /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,6 +174,7 @@
 				342FF1DB2B7D4F1F008DB4F6 /* CheckpassService.swift */,
 				3462C7492B8B99C30038DF84 /* FileManagerService.swift */,
 				34F574932B8D223800445F68 /* FileReader.swift */,
+				34FD62B82B93980D00DCDCAA /* KeychainService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -321,6 +324,7 @@
 				343946E22B82A34300932581 /* MainViewPresenter.swift in Sources */,
 				34F574942B8D223800445F68 /* FileReader.swift in Sources */,
 				345CB7CA2B6D76D200D51688 /* EncryptPresenter.swift in Sources */,
+				34FD62B92B93980D00DCDCAA /* KeychainService.swift in Sources */,
 				342FF1D72B7BF8E3008DB4F6 /* AppStorageService.swift in Sources */,
 				345CB7CE2B700A9F00D51688 /* EncryptService.swift in Sources */,
 				342FF1D52B7BE99F008DB4F6 /* NewCheckpassFileView.swift in Sources */,

@@ -25,6 +25,7 @@ final class NewCheckpassFilePresenter {
     private let encryptService: EncryptService
     private let shellExecutor: ShellExecutor
     private let checkpassService: CheckpassService
+    private let keychainService: KeychainPasswordService
 
     private var disposables = Set<AnyCancellable>()
 
@@ -34,7 +35,8 @@ final class NewCheckpassFilePresenter {
         fileManager: FileManagerService,
         encryptService: EncryptService,
         shellExecutor: ShellExecutor,
-        checkpassService: CheckpassService
+        checkpassService: CheckpassService,
+        keychainService: KeychainPasswordService
     ) {
         self.appStorageService = appStorageService
         self.state = state
@@ -42,6 +44,7 @@ final class NewCheckpassFilePresenter {
         self.encryptService = encryptService
         self.shellExecutor = shellExecutor
         self.checkpassService = checkpassService
+        self.keychainService = keychainService
 
         subscribePathChanges()
     }
@@ -74,6 +77,8 @@ final class NewCheckpassFilePresenter {
                 encryptService: encryptService
             )
             try await checkpassService.createPassfile(createCheckpassPayload, createCheckpassDeps)
+
+            keychainService.savePassword(state.checkfilePass)
 
             await MainActor.run {
                 state.checkfileName = ""

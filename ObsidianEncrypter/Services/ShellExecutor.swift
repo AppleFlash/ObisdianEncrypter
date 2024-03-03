@@ -7,13 +7,17 @@
 
 import Foundation
 
-struct ShellExecutor: ClosureMockable {
+struct ShellExecutor {
     enum ShError: Error {
         case nonZeroCode
     }
 
     let execute: (_ command: String, _ dirURL: URL) async throws -> String
 }
+
+#if DEBUG
+extension ShellExecutor: ClosureMockable {}
+#endif
 
 extension ShellExecutor {
     static func baseExecutor() -> Self {

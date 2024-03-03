@@ -69,7 +69,8 @@ class MainFactory {
             fileManager: .defaultFileManager(),
             encryptService: .defaultService(),
             shellExecutor: .baseExecutor(),
-            checkpassService: .defaultService()
+            checkpassService: .defaultService(),
+            keychainService: .defaultService(.codableService())
         )
 
         return SettingsView {

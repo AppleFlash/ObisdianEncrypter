@@ -18,6 +18,7 @@ struct MainViewPresenter {
     let invalidateError: () -> Void
     let invalidateActionState: () -> Void
     let doAction: () async -> Void
+    let useKeychainPassowrd: () -> Void
 }
 
 extension MainViewPresenter {
@@ -33,14 +34,16 @@ extension MainViewPresenter {
             encryptService: .defaultService(),
             shellExecutor: .baseExecutor(),
             checkpassService: .defaultService(),
-            fileReader: .baseReader()
+            fileReader: .baseReader(),
+            keychainService: .defaultService(.codableService())
         )
         return MainViewPresenter(
             isActionAvailable: { [presenter] in presenter.isSyncAvailable },
             showFolderPrompt: presenter.showFolderPrompt,
             invalidateError: presenter.invalidateError,
             invalidateActionState: presenter.invalidateSyncState,
-            doAction: presenter.synchronize
+            doAction: presenter.synchronize,
+            useKeychainPassowrd: presenter.useKeychainPassowrd
         )
     }
 
@@ -55,14 +58,16 @@ extension MainViewPresenter {
             appStorageService: appStorageService,
             encryptService: .defaultService(),
             shellExecutor: .baseExecutor(),
-            checkpassService: .defaultService()
+            checkpassService: .defaultService(),
+            keychainService: .defaultService(.codableService())
         )
         return MainViewPresenter(
             isActionAvailable: { [presenter] in presenter.isSyncAvailable },
             showFolderPrompt: presenter.showFolderPrompt,
             invalidateError: presenter.invalidateError,
             invalidateActionState: presenter.invalidateSyncState,
-            doAction: presenter.decrypt
+            doAction: presenter.decrypt,
+            useKeychainPassowrd: presenter.useKeychainPassowrd
         )
     }
 
@@ -72,7 +77,8 @@ extension MainViewPresenter {
             showFolderPrompt: { _ in },
             invalidateError: {},
             invalidateActionState: {},
-            doAction: {}
+            doAction: {},
+            useKeychainPassowrd: {}
         )
     }
 }

@@ -15,6 +15,7 @@ final class DecryptPresenter {
     private let encryptService: EncryptService
     private let shellExecutor: ShellExecutor
     private let checkpassService: CheckpassService
+    private let keychainService: KeychainPasswordService
 
     private let storageFileName: String
     private var disposables = Set<AnyCancellable>()
@@ -30,7 +31,8 @@ final class DecryptPresenter {
         appStorageService: AppStorageService,
         encryptService: EncryptService,
         shellExecutor: ShellExecutor,
-        checkpassService: CheckpassService
+        checkpassService: CheckpassService,
+        keychainService: KeychainPasswordService
     ) {
         self.state = state
         self.storageFileName = storageFileName
@@ -39,8 +41,17 @@ final class DecryptPresenter {
         self.encryptService = encryptService
         self.shellExecutor = shellExecutor
         self.checkpassService = checkpassService
+        self.keychainService = keychainService
 
         subscribePathChanges()
+        useKeychainPassowrd()
+    }
+
+    func useKeychainPassowrd() {
+        guard let password = keychainService.readPassword() else {
+            return
+        }
+        state.password = password
     }
 
     func showFolderPrompt(folder: Folder) {

@@ -48,6 +48,13 @@ struct MainView: View {
                 Text(state.meta.actionPasswordTitle)
                 HStack {
                     SecureField(state.meta.actionPlaceholder, text: $state.password).frame(maxWidth: 150)
+
+                    Button(action: {
+                        presenter.useKeychainPassowrd()
+                    }, label: {
+                        Text("Restore keychain password")
+                    })
+
                     Spacer()
                 }
             }
