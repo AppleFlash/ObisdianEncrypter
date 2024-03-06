@@ -21,7 +21,6 @@ final class EncryptPresenter {
     private let encryptService: EncryptService
     private let shellExecutor: ShellExecutor
     private let checkpassService: CheckpassService
-    private let fileReader: FileReader
     private let keychainService: KeychainPasswordService
 
     private var disposables = Set<AnyCancellable>()
@@ -38,7 +37,6 @@ final class EncryptPresenter {
         encryptService: EncryptService,
         shellExecutor: ShellExecutor,
         checkpassService: CheckpassService,
-        fileReader: FileReader,
         keychainService: KeychainPasswordService
     ) {
         self.state = state
@@ -48,7 +46,6 @@ final class EncryptPresenter {
         self.encryptService = encryptService
         self.shellExecutor = shellExecutor
         self.checkpassService = checkpassService
-        self.fileReader = fileReader
         self.keychainService = keychainService
 
         subscribePathChanges()
@@ -102,14 +99,8 @@ final class EncryptPresenter {
             let gitDir = URL(filePath: state.gitRepoPath)
 
             await updateProgress("Checking password...")
-            let checkpassPayload = CheckpassService.CheckPassfile.Payload(repo: gitDir, pass: state.password)
-            let checkpassDeps = CheckpassService.CheckPassfile.Dependencies(
-                fileManager: fileManager,
-                encryptService: encryptService,
-                shellExecutor: shellExecutor,
-                fileReader: fileReader
-            )
-            let checkStatus = try await checkpassService.checkPassfile(checkpassPayload, checkpassDeps)
+            let checkpassPayload = CheckpassService.CheckpassPayload(repo: gitDir, pass: state.password)
+            let checkStatus = try await checkpassService.checkPassfile(checkpassPayload)
             if checkStatus == .fileNotExist {
                 state.dirError = .encryptError("You should create passfile first")
                 await clean()
@@ -122,16 +113,12 @@ final class EncryptPresenter {
             }
 
             await updateProgress("Encrypting...")
-            let encryptAllPayload = EncryptService.EncryptAll.Payload(
+            let encryptAllPayload = EncryptService.EncryptAllPayload(
                 gitDir: gitDir,
                 vaultDir: URL(filePath: state.vaultRepoPath),
                 password: state.password
             )
-            let encryptAllDeps = EncryptService.EncryptAll.Dependencies(
-                fileManager: fileManager,
-                shellExecutor: shellExecutor
-            )
-            try await encryptService.encryptAll(encryptAllPayload, encryptAllDeps)
+            try await encryptService.encryptAll(encryptAllPayload)
             await updateProgress("Add to git...")
             _ = try await shellExecutor.execute("git add .", gitDir)
             await updateProgress("Creating commit...")

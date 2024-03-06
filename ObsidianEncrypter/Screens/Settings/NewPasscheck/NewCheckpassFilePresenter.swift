@@ -21,9 +21,6 @@ final class NewCheckpassFilePresenter {
 
     private let appStorageService: AppStorageService
     private let state: NewCheckpassState
-    private let fileManager: FileManagerService
-    private let encryptService: EncryptService
-    private let shellExecutor: ShellExecutor
     private let checkpassService: CheckpassService
     private let keychainService: KeychainPasswordService
 
@@ -32,17 +29,11 @@ final class NewCheckpassFilePresenter {
     init(
         appStorageService: AppStorageService,
         state: NewCheckpassState,
-        fileManager: FileManagerService,
-        encryptService: EncryptService,
-        shellExecutor: ShellExecutor,
         checkpassService: CheckpassService,
         keychainService: KeychainPasswordService
     ) {
         self.appStorageService = appStorageService
         self.state = state
-        self.fileManager = fileManager
-        self.encryptService = encryptService
-        self.shellExecutor = shellExecutor
         self.checkpassService = checkpassService
         self.keychainService = keychainService
 
@@ -66,17 +57,12 @@ final class NewCheckpassFilePresenter {
 
         do {
             let gitPathUrl = URL(filePath: gitRepoPath)
-            let createCheckpassPayload = CheckpassService.CreatePassfile.Payload(
+            let createCheckpassPayload = CheckpassService.CreatePassfilePayload(
                 repo: gitPathUrl,
                 name: state.checkfileName,
                 pass: state.checkfilePass
             )
-            let createCheckpassDeps = CheckpassService.CreatePassfile.Dependencies(
-                fileManager: fileManager,
-                shellExecutor: shellExecutor,
-                encryptService: encryptService
-            )
-            try await checkpassService.createPassfile(createCheckpassPayload, createCheckpassDeps)
+            try await checkpassService.createPassfile(createCheckpassPayload)
 
             keychainService.savePassword(state.checkfilePass)
 

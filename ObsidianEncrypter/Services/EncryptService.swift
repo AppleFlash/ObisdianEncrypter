@@ -8,63 +8,57 @@
 import Foundation
 
 struct EncryptService: ClosureMockable {
+    let encryptAll: (EncryptAllPayload) async throws -> Void
+    let encrypt: (EncryptPayload) async throws -> String
+    let decrypt: (DecryptPayload) async throws -> Void
+}
+
+extension EncryptService {
     enum Constants {
         static let storageDirName = "storage"
         static let outputZipName = "storage.zip"
         static let encSuffix = ".enc"
     }
 
-    enum EncryptAll {
-        struct Payload {
-            let gitDir: URL
-            let vaultDir: URL
-            let password: String
-        }
-
-        struct Dependencies {
-            let fileManager: FileManagerService
-            let shellExecutor: ShellExecutor
-        }
+    struct EncryptAllPayload {
+        let gitDir: URL
+        let vaultDir: URL
+        let password: String
     }
 
-    let encryptAll: (EncryptAll.Payload, EncryptAll.Dependencies) async throws -> Void
-
-    enum Encrypt {
-        struct Payload {
-            let file: String
-            let password: String
-            let baseDir: URL
-        }
-
-        struct Dependencies {
-            let shellExecutor: ShellExecutor
-        }
+    struct EncryptPayload {
+        let file: String
+        let password: String
+        let baseDir: URL
     }
 
-    let encrypt: (Encrypt.Payload, Encrypt.Dependencies) async throws -> String
-
-    enum Decrypt {
-        struct Payload {
-            let file: String
-            let output: String
-            let password: String
-            let baseDir: URL
-        }
-
-        struct Dependencies {
-            let shellExecutor: ShellExecutor
-        }
+    struct DecryptPayload {
+        let file: String
+        let output: String
+        let password: String
+        let baseDir: URL
     }
-
-    let decrypt: (Decrypt.Payload, Decrypt.Dependencies) async throws -> Void
 }
 
 extension EncryptService {
-    static func defaultService() -> Self {
+    static func defaultService(
+        fileManager: FileManagerService,
+        shellExecutor: ShellExecutor
+    ) -> Self {
         return Self(
-            encryptAll: EncryptServiceImp.encryptAll(payload:dependencies:),
-            encrypt: EncryptServiceImp.encrypt(payload:dependencies:),
-            decrypt: EncryptServiceImp.decrypt(payload:dependencies:)
+            encryptAll: {
+                try await EncryptServiceImp.encryptAll(
+                    payload: $0,
+                    fileManager: fileManager,
+                    shellExecutor: shellExecutor
+                )
+            },
+            encrypt: {
+                try await EncryptServiceImp.encrypt(payload: $0, shellExecutor: shellExecutor)
+            },
+            decrypt: {
+                try await EncryptServiceImp.decrypt(payload: $0, shellExecutor: shellExecutor)
+            }
         )
     }
 }
@@ -73,28 +67,28 @@ extension EncryptService {
 
 private enum EncryptServiceImp {
     static func encryptAll(
-        payload: EncryptService.EncryptAll.Payload,
-        dependencies: EncryptService.EncryptAll.Dependencies
+        payload: EncryptService.EncryptAllPayload,
+        fileManager: FileManagerService,
+        shellExecutor: ShellExecutor
     ) async throws {
         let task = Task {
             let storageDir = payload.gitDir.appendingPathComponent(EncryptService.Constants.storageDirName)
-            if dependencies.fileManager.fileExistsAtPath(storageDir.path(percentEncoded: false)) {
-                try dependencies.fileManager.removeItem(storageDir)
+            if fileManager.fileExistsAtPath(storageDir.path(percentEncoded: false)) {
+                try fileManager.removeItem(storageDir)
             }
-            try dependencies.fileManager.copyItem(payload.vaultDir, storageDir)
-            _ = try await dependencies.shellExecutor.execute(
+            try fileManager.copyItem(payload.vaultDir, storageDir)
+            _ = try await shellExecutor.execute(
                 "zip -r \(EncryptService.Constants.outputZipName) \(EncryptService.Constants.storageDirName)",
                 payload.gitDir
             )
-            try dependencies.fileManager.removeItem(storageDir)
-            let encryptPayload = EncryptService.Encrypt.Payload(
+            try fileManager.removeItem(storageDir)
+            let encryptPayload = EncryptService.EncryptPayload(
                 file: EncryptService.Constants.outputZipName,
                 password: payload.password,
                 baseDir: payload.gitDir
             )
-            let encryptDeps = EncryptService.Encrypt.Dependencies(shellExecutor: dependencies.shellExecutor)
-            try await encrypt(payload: encryptPayload, dependencies: encryptDeps)
-            try dependencies.fileManager.removeItem(
+            try await encrypt(payload: encryptPayload, shellExecutor: shellExecutor)
+            try fileManager.removeItem(
                 payload.gitDir.appendingPathComponent(EncryptService.Constants.outputZipName)
             )
         }
@@ -103,11 +97,11 @@ private enum EncryptServiceImp {
 
     @discardableResult
     static func encrypt(
-        payload: EncryptService.Encrypt.Payload,
-        dependencies: EncryptService.Encrypt.Dependencies
+        payload: EncryptService.EncryptPayload,
+        shellExecutor: ShellExecutor
     ) async throws -> String {
         let fileName = payload.file + EncryptService.Constants.encSuffix
-        _ = try await dependencies.shellExecutor.execute(
+        _ = try await shellExecutor.execute(
             "openssl enc -aes-256-cbc -salt -pbkdf2 -in \(payload.file) -out \(fileName) -k \(payload.password)",
             payload.baseDir
         )
@@ -116,10 +110,10 @@ private enum EncryptServiceImp {
     }
 
     static func decrypt(
-        payload: EncryptService.Decrypt.Payload,
-        dependencies: EncryptService.Decrypt.Dependencies
+        payload: EncryptService.DecryptPayload,
+        shellExecutor: ShellExecutor
     ) async throws {
-        _ = try await dependencies.shellExecutor.execute(
+        _ = try await shellExecutor.execute(
             "openssl enc -aes-256-cbc -d -pbkdf2 -in \(payload.file) -out \(payload.output) -k \(payload.password)",
             payload.baseDir
         )

@@ -15,7 +15,13 @@ final class ServiceAssembly: Assembly {
     }
 
     var encryptService: EncryptService {
-        define(.signleton, object: .defaultService())
+        define(
+            .signleton,
+            object: .defaultService(
+                fileManager: fileManager,
+                shellExecutor: shellExecutor
+            )
+        )
     }
 
     var shellExecutor: ShellExecutor {
@@ -23,7 +29,15 @@ final class ServiceAssembly: Assembly {
     }
 
     var checkpassService: CheckpassService {
-        define(.signleton, object: .defaultService())
+        define(
+            .signleton,
+            object: .defaultService(
+                fileManager: fileManager,
+                encryptService: encryptService,
+                shellExecutor: shellExecutor,
+                fileReader: fileReader
+            )
+        )
     }
 
     var fileReader: FileReader {

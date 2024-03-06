@@ -107,14 +107,13 @@ final class DecryptPresenter {
 
         do {
             await updateProgress("Decryptig...")
-            let decryptPayload = EncryptService.Decrypt.Payload(
+            let decryptPayload = EncryptService.DecryptPayload(
                 file: storageFileName,
                 output: zip,
                 password: state.password,
                 baseDir: gitDir
             )
-            let decryptDeps = EncryptService.Decrypt.Dependencies(shellExecutor: shellExecutor)
-            try await encryptService.decrypt(decryptPayload, decryptDeps)
+            try await encryptService.decrypt(decryptPayload)
 
             await updateProgress("Moving folder...")
             try fileManager.moveItem(outputPath, newOutputPath)

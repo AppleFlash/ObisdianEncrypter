@@ -15,9 +15,6 @@ final class SettingsAssembly: Assembly {
                 NewCheckpassFilePresenter(
                     appStorageService: serviceAssembly.appStorageService,
                     state: state,
-                    fileManager: serviceAssembly.fileManager,
-                    encryptService: serviceAssembly.encryptService,
-                    shellExecutor: serviceAssembly.shellExecutor,
                     checkpassService: serviceAssembly.checkpassService,
                     keychainService: serviceAssembly.keychainService
                 )

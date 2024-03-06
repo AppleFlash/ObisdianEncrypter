@@ -48,7 +48,6 @@ final class MainAssembly: Assembly {
                     encryptService: serviceAssembly.encryptService,
                     shellExecutor: serviceAssembly.shellExecutor,
                     checkpassService: serviceAssembly.checkpassService,
-                    fileReader: serviceAssembly.fileReader,
                     keychainService: serviceAssembly.keychainService
                 )
                 return MainViewPresenter(
