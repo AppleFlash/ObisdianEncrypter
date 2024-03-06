@@ -28,8 +28,12 @@
 		3462C74A2B8B99C30038DF84 /* FileManagerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3462C7492B8B99C30038DF84 /* FileManagerService.swift */; };
 		3462C74D2B8BD9480038DF84 /* ClosureMockable.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3462C74C2B8BD9480038DF84 /* ClosureMockable.generated.swift */; };
 		3462C74F2B8C72940038DF84 /* ClosureMockable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3462C74E2B8C72940038DF84 /* ClosureMockable.swift */; };
+		347C99D22B98CD00007FFAC1 /* ServiceAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C99D12B98CD00007FFAC1 /* ServiceAssembly.swift */; };
+		347C99D42B98CD25007FFAC1 /* MainAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C99D32B98CD25007FFAC1 /* MainAssembly.swift */; };
+		347C99D62B98CDBF007FFAC1 /* SettingsAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347C99D52B98CDBF007FFAC1 /* SettingsAssembly.swift */; };
 		34F574942B8D223800445F68 /* FileReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F574932B8D223800445F68 /* FileReader.swift */; };
 		34FD62B92B93980D00DCDCAA /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34FD62B82B93980D00DCDCAA /* KeychainService.swift */; };
+		34FD62BD2B94F97600DCDCAA /* Assembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34FD62BC2B94F97600DCDCAA /* Assembly.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,8 +71,12 @@
 		3462C7492B8B99C30038DF84 /* FileManagerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManagerService.swift; sourceTree = "<group>"; };
 		3462C74C2B8BD9480038DF84 /* ClosureMockable.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClosureMockable.generated.swift; sourceTree = "<group>"; };
 		3462C74E2B8C72940038DF84 /* ClosureMockable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosureMockable.swift; sourceTree = "<group>"; };
+		347C99D12B98CD00007FFAC1 /* ServiceAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceAssembly.swift; sourceTree = "<group>"; };
+		347C99D32B98CD25007FFAC1 /* MainAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAssembly.swift; sourceTree = "<group>"; };
+		347C99D52B98CDBF007FFAC1 /* SettingsAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAssembly.swift; sourceTree = "<group>"; };
 		34F574932B8D223800445F68 /* FileReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileReader.swift; sourceTree = "<group>"; };
 		34FD62B82B93980D00DCDCAA /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
+		34FD62BC2B94F97600DCDCAA /* Assembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assembly.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,6 +136,7 @@
 		345CB7982B6D72C100D51688 /* ObsidianEncrypter */ = {
 			isa = PBXGroup;
 			children = (
+				34FD62BB2B94DFEA00DCDCAA /* Dependencies */,
 				345CB7CF2B700B7A00D51688 /* Utils */,
 				345CB7C52B6D74B400D51688 /* Services */,
 				345CB7C42B6D74AA00D51688 /* Screens */,
@@ -209,6 +218,17 @@
 			name = generated;
 			path = ObsidianEncrypter/generated;
 			sourceTree = SOURCE_ROOT;
+		};
+		34FD62BB2B94DFEA00DCDCAA /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				34FD62BC2B94F97600DCDCAA /* Assembly.swift */,
+				347C99D12B98CD00007FFAC1 /* ServiceAssembly.swift */,
+				347C99D32B98CD25007FFAC1 /* MainAssembly.swift */,
+				347C99D52B98CDBF007FFAC1 /* SettingsAssembly.swift */,
+			);
+			path = Dependencies;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -310,13 +330,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				347C99D42B98CD25007FFAC1 /* MainAssembly.swift in Sources */,
 				343946E42B82A6A500932581 /* MainState.swift in Sources */,
+				34FD62BD2B94F97600DCDCAA /* Assembly.swift in Sources */,
 				342FF1DC2B7D4F1F008DB4F6 /* CheckpassService.swift in Sources */,
+				347C99D22B98CD00007FFAC1 /* ServiceAssembly.swift in Sources */,
 				342FF1D32B7BE5E0008DB4F6 /* SettingsView.swift in Sources */,
 				343946E62B82A6C700932581 /* FileManager+HiddenDirs.swift in Sources */,
 				345CB7C82B6D74D500D51688 /* MainView.swift in Sources */,
 				3462C74F2B8C72940038DF84 /* ClosureMockable.swift in Sources */,
 				345CB7CC2B6EB29000D51688 /* ShellExecutor.swift in Sources */,
+				347C99D62B98CDBF007FFAC1 /* SettingsAssembly.swift in Sources */,
 				343946E02B82A33700932581 /* DecryptPresenter.swift in Sources */,
 				345CB7D32B700C1200D51688 /* Try+ErrorHandler.swift in Sources */,
 				345CB79A2B6D72C100D51688 /* ObsidianEncrypterApp.swift in Sources */,

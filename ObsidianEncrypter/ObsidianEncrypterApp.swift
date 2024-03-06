@@ -24,54 +24,26 @@ struct ObsidianEncrypterApp: App {
 
 class MainFactory {
     static let shared = MainFactory()
-
-    lazy var appStorageService = AppStorageService.make()
+    private lazy var mainAssembly = MainAssembly.create()
+    private lazy var settingsAssembly = SettingsAssembly.create()
 
     func createEncrypt() -> some View {
-        let state = MainState(
-            meta: MainState.Meta(
-                actionPasswordTitle: "Encrypt password:",
-                actionPlaceholder: "Encryption pass",
-                actionTitle: "Encrypt & Sync!",
-                actionSuccessMessage: "Synced!"
-            )
-        )
-        let presenter = MainViewPresenter.encryptPresenter(
-            state: state,
-            appStorageService: appStorageService
-        )
+        let state = mainAssembly.encryptState
+        let presenter = mainAssembly.encryptPresenter(state)
         let view = MainView(presenter: presenter, state: state)
         return view
     }
 
     func createDecrypt() -> some View {
-        let state = MainState(
-            meta: MainState.Meta(
-                actionPasswordTitle: "Decrypt password:",
-                actionPlaceholder: "Decryption pass",
-                actionTitle: "Decrypt!",
-                actionSuccessMessage: "Decrypted!"
-            )
-        )
-        let presenter = MainViewPresenter.decryptPresenter(
-            state: state,
-            appStorageService: appStorageService
-        )
+        let state = mainAssembly.decryptState
+        let presenter = mainAssembly.decryptPresenter(state)
         let view = MainView(presenter: presenter, state: state)
         return view
     }
 
     func createSettings() -> some View {
         let state = NewCheckpassState()
-        let presenter = NewCheckpassFilePresenter(
-            appStorageService: appStorageService,
-            state: state,
-            fileManager: .defaultFileManager(),
-            encryptService: .defaultService(),
-            shellExecutor: .baseExecutor(),
-            checkpassService: .defaultService(),
-            keychainService: .defaultService(.codableService())
-        )
+        let presenter = settingsAssembly.newCheckpassPresenter(state)
 
         return SettingsView {
             NewCheckpassFileView(state: state, presenter: presenter)
